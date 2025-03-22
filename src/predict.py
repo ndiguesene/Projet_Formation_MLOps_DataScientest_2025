@@ -47,9 +47,7 @@ class Predict:
         image_preprocessor.preprocess_images_in_df(X)
 
         sequences = self.tokenizer.texts_to_sequences(X["description"])
-        padded_sequences = pad_sequences(
-            sequences, maxlen=10, padding="post", truncating="post"
-        )
+        padded_sequences = pad_sequences(sequences, maxlen=10, padding="post", truncating="post")
 
         target_size = (224, 224, 3)
         images = X["image_path"].apply(lambda x: self.preprocess_image(x, target_size))
