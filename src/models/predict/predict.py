@@ -73,8 +73,8 @@ class Predict:
 def main():
     parser = argparse.ArgumentParser(description= "Input data")
     
-    parser.add_argument("--dataset_path", default = "data/preprocessed/X_train_update.csv", type=str,help="File path for the input CSV file.")
-    parser.add_argument("--images_path", default = "data/preprocessed/image_train", type=str,  help="Base path for the images.")
+    parser.add_argument("--dataset_path", default = "data/raw/X_train_update.csv", type=str,help="File path for the input CSV file.")
+    parser.add_argument("--images_path", default = "data/raw/image_train", type=str,  help="Base path for the images.")
     args = parser.parse_args()
 
     # Charger les configurations et modèles
@@ -106,7 +106,7 @@ def main():
     predictions = predictor.predict()
 
     # Sauvegarde des prédictions
-    with open("data/preprocessed/predictions.json", "w", encoding="utf-8") as json_file:
+    with open("data/predictions/predictions.json", "w", encoding="utf-8") as json_file:
         json.dump(predictions, json_file, indent=2)
 
 

@@ -1,5 +1,5 @@
 from features.build_features import DataImporter, TextPreprocessor, ImagePreprocessor
-from models.train_model import TextLSTMModel, ImageVGG16Model, concatenate
+from train_model import TextLSTMModel, ImageVGG16Model, concatenate
 from tensorflow import keras
 import pickle
 import tensorflow as tf
