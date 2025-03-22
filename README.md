@@ -1,84 +1,114 @@
-Project Name
-==============================
+# Phase 1
+ 
+- **Définir les objectifs et métriques du projet**
+- **Mettre en place l'environnement de développement avec Docker ou de simples environnements virtuels**
+- **Créer les premiers pipelines de données et d'entraînement**
+- **Mise en place Git pour le code et premiers tests automatisés**
+- **Créer une API basique pour le modèle**
+## Cadrage du Projet MLOps
+Cataloguer les produits selon des données différentes (textes et images) est important pour les e-commerces puisque cela permet de réaliser des applications diverses telles que la recommandation de produits et la recherche personnalisée. Il s’agit alors de prédire le code type des produits à partir de données textuelles (désignation et description des produits) ainsi que des données d'images (image du produit).
+Le client est le site internet de Rakuten, et plus particulièrement les administrateurs de ce site.
+### Étapes pour cadrer le projet MLOps (Rakuten)
+1. **Objectifs et Problématique**
+   1. Pourquoi mettre en place un pipeline MLOps ? (automatisation, scalabilité, fiabilité…)
+   2. Quels sont les objectifs ?
+      1. Construire un modèle de classification d’images pour catégoriser des produits e-commerce.
+      2. Déploiement du modèle deep learning en production.
+   3. Quels sont les KPIs pour mesurer la performance du modèle et du pipeline MLOps ? (ex. : précision, latence, coût d’inférence…)
+      4. Métriques :
+         5. Accuracy : Évaluer la proportion de bonnes prédictions 
+         6. F1-score : Prendre en compte le déséquilibre des classes 
+         7. Temps d’inférence : Mesurer la rapidité des prédictions du modèle
+2. **Données et Infrastructure**
+   1. **Sources des données** : stockés dans HuggingFace: https://huggingface.co/datasets/ndiguesene/ml-datasets-image-rakuten-ecommerce/resolve/main/
+      - Données textuelles (~60 MB)
+      - Données images (~2.5 GB)
+   2. **Stockage** : fichiers plats (CSV)
+   3. **Nettoyage & Préparation** : Stratégie de gestion des données manquantes et transformation.
+   4. **Infrastructure** : À définir.
+3. **Développement du Modèle ML**
+   1. **Choix des algorithmes** : Deep learning
+   2. **Frameworks utilisés** : TensorFlow, Scikit-learn
+4. **Industrialisation avec MLOps**
+   1. **CI/CD pour le ML** : GitHub, GitHub Actions
+   2. **Gestion des modèles** : MLflow
+   3. **Orchestration** : Airflow
+   4. **Monitoring & Observabilité** : Prometheus, Grafana
+5. **Déploiement et Scalabilité**
+   1. **Mode de déploiement** : Batch (REST API)
+   2. **Infrastructure de déploiement** : Docker, Kubernetes (à confirmer)
+   3. **Gestion du drift** : Retrain automatique, A/B testing, monitoring des performances
+6. **Sécurité et Gouvernance**
+   1. Sécurisé les APIs exposées
+---
+## Mettre en place l'environnement de développement reproductible
+### Création de l'environnement 
+#### - Sans Docker
+Créez l'environnement virtuel avec les étapes suivantes sur Linux :
+ 
+`python -m venv rakuten-project-mlops`
+ 
+Cela va créer un dossier `rakuten-project-mlops/` contenant l’environnement virtuel.
+ 
+### Installer les dépendances
+ 
+Installez les dépendances nécessaires :
+ 
+`pip install -r requirements.txt`
+ 
+#### - Avec Docker
+- Créer un Dockerfile et un `docker-compose.yml`
+- Construire l’image avec `docker build -t ml_env .`
+- Lancer le conteneur avec `docker-compose up`
+### Importer les données dans `raw/data`
+ 
+Ensuite, exécutez le script pour importer les données depuis le repo HuggingFace :
+`python3 src/data/import_raw_data.py`
+ 
+Arborescence des données
+```
+    data/raw/
+    │── image_train/
+    │   ├── image_123456789_product_987654321.jpg
+    │   ├── image_987654321_product_123456789.jpg
+    │   └── ...
+    │── image_test/
+    │   ├── image_111111111_product_222222222.jpg
+    │   ├── image_222222222_product_111111111.jpg
+    │   └── ...
+```
+---
+## Copiez les données brutes dans `data/preprocessed/` :
+ 
+`python3 src/data/make_dataset.py data/raw data/preprocessed`
+ 
+## Entraînez les modèles sur l’ensemble de données et enregistrez-les dans le dossier models
+ 
+`python3 python src/main.py`
+## Démarrer les pratiques de versionning et des tests automatisés
+### Suivi et gestion des versions des données et des modèles de données
+1. **Initialiser DVC dans le projet**
+```bash
+  dvc init
+```
+2. **Ajouter les fichiers volumineux avec DVC**
+```bash
+    dvc add data/raw/image_train
+    dvc add data/raw/image_test
+    dvc add data/preprocessed/X_train_update.csv
+    dvc add data/preprocessed/X_test_update.csv
+```
+3. **Créer un fichier `.gitignore` pour ignorer les fichiers volumineux suivis par DVC**
+```bash
+  echo "*.dvc" > .gitignore
+```
+### Configurer un stockage distant avec DVC
+On utilisera **S3 d’AWS** pour sauvegarder les données. Pour cela, il faut d'abord installer S3 à l’aide de la commande suivante :
 
-This project is a starting Pack for MLOps projects based on the subject "movie_recommandation". It's not perfect so feel free to make some modifications on it.
-
-Project Organization
-------------
-
-    ├── LICENSE
-    ├── README.md          <- The top-level README for developers using this project.
-    ├── data
-    │   ├── external       <- Data from third party sources -> the external data you want to make a prediction on
-    │   ├── preprocessed      <- The final, canonical data sets for modeling.
-    |   |  ├── image_train <- Where you put the images of the train set
-    |   |  ├── image_test <- Where you put the images of the predict set
-    |   |  ├── X_train_update.csv    <- The csv file with te columns designation, description, productid, imageid like in X_train_update.csv
-    |   |  ├── X_test_update.csv    <- The csv file with te columns designation, description, productid, imageid like in X_train_update.csv
-    │   └── raw            <- The original, immutable data dump.
-    |   |  ├── image_train <- Where you put the images of the train set
-    |   |  ├── image_test <- Where you put the images of the predict set
-    │
-    ├── logs               <- Logs from training and predicting
-    │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
-    │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   ├── main.py        <- Scripts to train models 
-    │   ├── predict.py     <- Scripts to use trained models to make prediction on the files put in ../data/preprocessed
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   ├── check_structure.py    
-    │   │   ├── import_raw_data.py 
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   ├── models                
-    │   │   └── train_model.py
-    │   └── config         <- Describe the parameters used in train_model.py and predict_model.py
-
---------
-
-Once you have downloaded the github repo, open the anaconda powershell on the root of the project and follow those instructions :
-
-> `conda create -n "Rakuten-project"`    <- It will create your conda environement
-
-> `conda activate Rakuten-project`       <- It will activate your environment
-
-> `conda install pip`                    <- May be optionnal
-
-> `pip install -r requirements.txt`      <- It will install the required packages
-
-> `python src/data/import_raw_data.py`   <- It will import the tabular data on data/raw/
-
-> Upload the image data folder set directly on local from https://challengedata.ens.fr/participants/challenges/35/, you should save the folders image_train and image_test respecting the following structure
-
-    ├── data
-    │   └── raw           
-    |   |  ├── image_train 
-    |   |  ├── image_test 
-
-> `python src/data/make_dataset.py data/raw data/preprocessed`      <- It will copy the raw dataset and paste it on data/preprocessed/
-
-> `python src/main.py`                   <- It will train the models on the dataset and save them in models. By default, the number of epochs = 1
-
-> `python src/predict.py`                <- It will use the trained models to make a prediction (of the prdtypecode) on the desired data, by default, it will predict on the train. You can pass the path to data and images as arguments if you want to change it
->
-    Exemple : python src/predict_1.py --dataset_path "data/preprocessed/X_test_update.csv" --images_path "data/preprocessed/image_test"
-                                        
-                                         The predictions are saved in data/preprocessed as 'predictions.json'
-
-> You can download the trained models loaded here : https://drive.google.com/drive/folders/1fjWd-NKTE-RZxYOOElrkTdOw2fGftf5M?usp=drive_link and insert them in the models folder
-> 
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
-python make_dataset.py "../../data/raw" "../../data/preprocessed"
+ 
+`pip install "dvc[S3]"`
+ 
+ 
+Une fois S3 installé, il faudra mettre à jour le fichier de configuration `.dvc/config` pour ajouter DagsHub comme notre stockage distant.
+---
+## Implémenter une API basique
