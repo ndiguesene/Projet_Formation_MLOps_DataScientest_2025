@@ -1,5 +1,6 @@
-#deep learning models
-*.h5
+# Deep learning models
+models/
+!models/*.h5  # Inclure les fichiers .h5
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -27,8 +28,6 @@ var/
 *.egg
 
 # PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
 
@@ -78,12 +77,11 @@ target/
 # Jupyter NB Checkpoints
 .ipynb_checkpoints/
 
-# exclude data from source control by default
+# Exclude data from source control by default
 data/raw/*
 !data/raw/*.dvc
 data/preprocessed/*
 !data/preprocessed/*.dvc
-
 
 # Mac OS-specific storage files
 .DS_Store
@@ -99,4 +97,3 @@ data/preprocessed/*
 /logs/
 
 # Artifacts
-# /models/
