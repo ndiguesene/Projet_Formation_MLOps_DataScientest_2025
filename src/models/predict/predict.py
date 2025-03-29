@@ -1,5 +1,5 @@
-from features.build_features import TextPreprocessor
-from features.build_features import ImagePreprocessor
+from src.features.build_features import TextPreprocessor
+from src.features.build_features import ImagePreprocessor
 import tensorflow as tf
 from tensorflow.keras.applications.vgg16 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
@@ -73,22 +73,22 @@ class Predict:
 def main():
     parser = argparse.ArgumentParser(description= "Input data")
     
-    parser.add_argument("--dataset_path", default = "data/raw/X_train_update.csv", type=str,help="File path for the input CSV file.")
-    parser.add_argument("--images_path", default = "data/raw/image_train", type=str,  help="Base path for the images.")
+    parser.add_argument("--dataset_path", default = "../../../data/raw/X_train_update.csv", type=str,help="File path for the input CSV file.")
+    parser.add_argument("--images_path", default = "../../../data/raw/image_train", type=str,  help="Base path for the images.")
     args = parser.parse_args()
 
     # Charger les configurations et modèles
-    with open("/app/models/tokenizer_config.json", "r", encoding="utf-8") as json_file:
+    with open("../../../models/tokenizer_config.json", "r", encoding="utf-8") as json_file:
         tokenizer_config = json_file.read()
     tokenizer = keras.preprocessing.text.tokenizer_from_json(tokenizer_config)
 
-    lstm = keras.models.load_model("/app/models/best_lstm_model.h5")
-    vgg16 = keras.models.load_model("/app/models/best_vgg16_model.h5")
+    lstm = keras.models.load_model("../../../models/best_lstm_model.h5")
+    vgg16 = keras.models.load_model("../../../models/best_vgg16_model.h5")
 
-    with open("/app/models/best_weights.json", "r") as json_file:
+    with open("../../../models/best_weights.json", "r") as json_file:
         best_weights = json.load(json_file)
 
-    with open("/app/models/mapper.json", "r") as json_file:
+    with open("../../../models/mapper.json", "r") as json_file:
         mapper = json.load(json_file)
         
     
@@ -106,7 +106,7 @@ def main():
     predictions = predictor.predict()
 
     # Sauvegarde des prédictions
-    with open("/app/data/predictions/predictions.json", "w", encoding="utf-8") as json_file:
+    with open("../../../data/predictions/predictions.json", "w", encoding="utf-8") as json_file:
         json.dump(predictions, json_file, indent=2)
 
 

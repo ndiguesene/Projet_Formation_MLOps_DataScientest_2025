@@ -12,10 +12,13 @@ from predict_logic import make_prediction, preprocess_image
 
 app = FastAPI()
 
+class SubPrediction(BaseModel):
+    label: str
+    confidence: float
+    prediction: int
+
 class PredictionResponse(BaseModel):
-    prediction: str # prediction result
-    code: str # product code predicted
-    confidence: float # confidence level
+    predictions: list[SubPrediction] # prediction result
     message: str # response message
 
 @app.get("/status")
@@ -44,5 +47,11 @@ async def predict_code(
 
     predictions = make_prediction(df, processed_image)
 
-    # endpoint return value : 
-    return {"prediction": predictions["prediction"], "code": predictions["label"], "confidence": predictions["confidence"], "message": "Prediction successful"}
+    # Convert the list of dictionaries to a list of SubPrediction objects
+    sub_predictions = [SubPrediction(**prediction) for prediction in predictions]
+
+    # endpoint return value : {"prediction": predictions["prediction"], "code": predictions["label"], "confidence": predictions["confidence"], "message": "Prediction successful"}
+    return {
+        "predictions": sub_predictions,
+        "message": "Prediction successful"
+    }

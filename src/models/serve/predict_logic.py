@@ -15,6 +15,9 @@ from nltk.stem import WordNetLemmatizer
 import math
 from PIL import Image
 from io import BytesIO
+import pkg_resources
+import os
+
 
 class Predict:
     def __init__(
@@ -45,9 +48,11 @@ class Predict:
             sequences, maxlen=10, padding="post", truncating="post"
         )
 
+        image_tensor = tf.expand_dims(self.image_data, axis=0)  # Add batch dimension
+
         # Predict probabilities
         lstm_proba = self.lstm.predict([padded_sequences])
-        vgg16_proba = self.vgg16.predict([self.image_data]) # Use preprocessed tensor
+        vgg16_proba = self.vgg16.predict([image_tensor]) # Use preprocessed tensor
 
         # Combine probabilities
         concatenate_proba = (
@@ -67,10 +72,6 @@ class Predict:
         ]
 
         return results
-       # return {
-       #     i: self.mapper[str(final_predictions[i])]
-       #     for i in range(len(final_predictions))
-       # }
 
 class ImagePreprocessor: ## I wonder if it will be used 
     def __init__(self, image_data):
@@ -129,7 +130,7 @@ class TextPreprocessor:
         for column in columns:
             df[column] = df[column].apply(self.preprocess_text)
 
-def preprocess_image(image_input, target_size=(224, 224, 3)):
+def preprocess_image(image_input, target_size=(224, 224)):
         """Wrapper function to preprocess image."""
         if isinstance(image_input, bytes):  # Handle raw bytes
             image = Image.open(BytesIO(image_input)).convert("RGB")
@@ -141,17 +142,17 @@ def preprocess_image(image_input, target_size=(224, 224, 3)):
 
 def make_prediction(data_api, image_data):
       # Charger les configurations et modèles
-    with open("models/tokenizer_config.json", "r", encoding="utf-8") as json_file:
+    with open("../../../models/tokenizer_config.json", "r", encoding="utf-8") as json_file:
         tokenizer_config = json_file.read()
     tokenizer = keras.preprocessing.text.tokenizer_from_json(tokenizer_config)
 
-    lstm = keras.models.load_model("models/best_lstm_model.h5")
-    vgg16 = keras.models.load_model("models/best_vgg16_model.h5") # /app/models/best_vgg16_model.h5
+    lstm = keras.models.load_model("../../../models/best_lstm_model.h5")
+    vgg16 = keras.models.load_model("../../../models/best_vgg16_model.h5") # /app/models/best_vgg16_model.h5
 
-    with open("models/best_weights.json", "r") as json_file:
+    with open("../../../models/best_weights.json", "r") as json_file:
         best_weights = json.load(json_file)
 
-    with open("models/mapper.json", "r") as json_file:
+    with open("../../../models/mapper.json", "r") as json_file:
         mapper = json.load(json_file)
     
     predictor = Predict(
