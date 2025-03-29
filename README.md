@@ -120,7 +120,11 @@ Ici, nous entraînons le modèle (contient les fichiers main.py et train_model.p
 #### predict 
 Ici, on applique le modèle au données d'entraînement (contient le fichier predict.py). Le répertoire contiendra un Dockerfile spécifique pour lancer le test du modèle sur les données d'entraînement; Les résultats seront enregistrés sur data/predictions à la racine
 #### evaluate 
-Ici, on applique le modèle au données de test (devra être créé mais peut s'inspirer du fichier predict.py). Il contiendra un Dockerfile spécifique pour lancer le test du modèle sur les données de tes; Les résultats seront enregistrés sur data/predictions à la racine
+Ici, on applique le modèle au données de test (devra être créé mais peut s'inspirer du fichier predict.py). Il contiendra un Dockerfile spécifique pour lancer le test du modèle sur les données de tes; Les résultats seront enregistrés sur data/predictions à la racine. 
+##### Il semble que l'on ne puisse pas évaluer car il n'y a pas de données labélisées sur l'ensemble de test.
+
 #### serve
 Ici, on utilisera dans un premier temps requests ou FastAPI pour créer une API qui va interroger le modèle avec des données préalablement renseignées (fichier serve.py à créer) et retournera des résultats que l'on pourra mettre dans data/predictions à la racine avec un nom de fichier spécifique
-
+Niveaux de serving : 
+1. Usage de FastAPI pour créer un contneur basique de serving
+2. Usage de BentoML pour automatiser le déploiement, serving etc
