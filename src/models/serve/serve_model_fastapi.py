@@ -13,10 +13,10 @@ from predict_logic import make_prediction, preprocess_image
 app = FastAPI()
 
 class PredictionResponse(BaseModel):
+    prediction: str # prediction result
     code: str # product code predicted
     confidence: float # confidence level
     message: str # response message
-    prediction: str # prediction result
 
 @app.get("/status")
 def status():
@@ -24,9 +24,14 @@ def status():
 
 @app.post("/predict", response_model=PredictionResponse)
 async def predict_code(
-    text: str = Form(...),  # Receive text as form data
+    product_identifier: str = Form(...), # An integer ID for the product. This ID is used to associate the product with its corresponding product type code.
+    designation: str = Form(...), # The product title, a short text summarizing the product.
+    description: str = Form(...),  # A more detailed text describing the product. Not all the merchants use this field, so to retain originality of the data, the description field can contain NaN value for many products.
+    product_id: str = Form (...), # An unique ID for the product.
+    imageid: str = Form (...), # An unique ID for the image associated with the product.
     image: UploadFile = File(...)  # Receive image as file)
 ):
+    
     # Process the image input as bytes
     image_data = await image.read()
     processed_image = preprocess_image(image_data)
@@ -35,9 +40,9 @@ async def predict_code(
     #image_tensor = tf.convert_to_tensor([processed_image], dtype=tf.float32)
     
     # construct a df with textual data including description
-    df = pd.DataFrame({"description": [text]})
+    df = pd.DataFrame({"product_identifier":[product_identifier], "description": [description], "designation": [designation], "product_id": [product_id], "imageid": [imageid]})
 
     predictions = make_prediction(df, processed_image)
 
-    # logique de prédiction : 
+    # endpoint return value : 
     return {"prediction": predictions["prediction"], "code": predictions["label"], "confidence": predictions["confidence"], "message": "Prediction successful"}

@@ -1,5 +1,3 @@
-from features.build_features import TextPreprocessor
-from features.build_features import ImagePreprocessor
 import tensorflow as tf
 from tensorflow.keras.applications.vgg16 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
@@ -8,7 +6,6 @@ import numpy as np
 import json
 from tensorflow import keras
 import pandas as pd
-import argparse
 import nltk
 from bs4 import BeautifulSoup
 import re
