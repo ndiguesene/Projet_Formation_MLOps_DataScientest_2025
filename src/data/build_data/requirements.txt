@@ -5,3 +5,4 @@ dotenv
 shutil
 logging
 os
+python-dotenv

@@ -1,8 +1,8 @@
 import requests
 import os
 import logging
-from check_structure import check_existing_file, check_existing_folder
-
+from src.data.build_data.check_structure import check_existing_file, check_existing_folder
+from dotenv import load_dotenv
 
 def import_raw_data(raw_data_relative_path, filenames, bucket_folder_url):
     """import filenames from bucket_folder_url in raw_data_relative_path"""
@@ -69,11 +69,14 @@ FILES = [
     "images_low.zip",
 ]
 
+# Load environment variables from .env file
+load_dotenv()
+
 # Base URL to download data
 BASE_URL = "https://huggingface.co/datasets/ndiguesene/ml-datasets-image-rakuten-ecommerce/resolve/main/"
 
-# Directory where to save the raw data : added /aap for dockerization needs
-RAW_DATA_PATH = "/app/data/raw"
+# Directory where to save the raw data : added /app for dockerization needs
+RAW_DATA_PATH = os.environ.get("DATA_PATH", "../../../data/raw")
 
 def download_file(url, output_path):
     """Télécharge un fichier depuis une URL et l'enregistre à output_path."""
