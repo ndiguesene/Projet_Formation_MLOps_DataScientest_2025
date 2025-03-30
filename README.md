@@ -122,9 +122,12 @@ Ici, on applique le modèle au données d'entraînement (contient le fichier pre
 #### evaluate 
 Ici, on applique le modèle au données de test (devra être créé mais peut s'inspirer du fichier predict.py). Il contiendra un Dockerfile spécifique pour lancer le test du modèle sur les données de tes; Les résultats seront enregistrés sur data/predictions à la racine. 
 ##### Il semble que l'on ne puisse pas évaluer car il n'y a pas de données labélisées sur l'ensemble de test.
-
 #### serve
 Ici, on utilisera dans un premier temps requests ou FastAPI pour créer une API qui va interroger le modèle avec des données préalablement renseignées (fichier serve.py à créer) et retournera des résultats que l'on pourra mettre dans data/predictions à la racine avec un nom de fichier spécifique
 Niveaux de serving : 
 1. Usage de FastAPI pour créer un contneur basique de serving
 2. Usage de BentoML pour automatiser le déploiement, serving etc
+#### Variables d'environnement : vous devez rajouter un fichier .env sur la racine du projet
+Les chemins des modèles (poids, mapper etc) ne sont plus codés en dur. Les modifications suivantes ont été apportées : 
+1. ajout fichier `.env` contenant les variables d'environnement (ce fichier ne doit pas être poussé sur le git, il peut renfermer des informations sensibles tels clés d'api etc)
+2. ajout fichier `.env.example` sur le git : fichier d'exemple montrant comment renseigner le fichier .env ( quelle sont les variables d'environnement etc)
