@@ -129,5 +129,5 @@ Niveaux de serving :
 2. Usage de BentoML pour automatiser le déploiement, serving etc
 #### Variables d'environnement : vous devez rajouter un fichier .env sur la racine du projet
 Les chemins des modèles (poids, mapper etc) ne sont plus codés en dur. Les modifications suivantes ont été apportées : 
-1. ajout fichier `.env` contenant les variables d'environnement (ce fichier ne doit pas être poussé sur le git, il peut renfermer des informations sensibles tels clés d'api etc)
+1. ajout fichier `.env` contenant les variables d'environnement (**ce fichier ne doit pas être poussé sur le git, il peut renfermer des informations sensibles tels clés d'api etc**)
 2. ajout fichier `.env.example` sur le git : fichier d'exemple montrant comment renseigner le fichier .env ( quelle sont les variables d'environnement etc)
