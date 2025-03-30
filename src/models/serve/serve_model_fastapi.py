@@ -7,7 +7,7 @@ import pandas as pd
 import io
 import tensorflow as tf
 from io import BytesIO
-from predict_logic import make_prediction, preprocess_image
+from src.models.serve.predict_logic import make_prediction, preprocess_image
 
 
 app = FastAPI()
