@@ -8,24 +8,22 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-
-data_importer = DataImporter()
-df = data_importer.load_data()
-X_train, X_val, _, y_train, y_val, _ = data_importer.split_train_test(df)
-
 # Load paths from environment variables
 tokenizer_config_path = os.environ.get("TOKENIZER_CONFIG_PATH", "../../../models/tokenizer_config.json")
 lstm_model_path = os.environ.get("LSTM_MODEL_PATH", "../../../models/best_lstm_model.h5")
 vgg16_model_path = os.environ.get("VGG16_MODEL_PATH", "../../../models/best_vgg16_model.h5")
-best_weights_path = os.environ.get("BEST_WEIGHTS_PATH_PKL", "../../../models/best_weights.pkl")
-mapper_path = os.environ.get("MAPPER_PATH", "models/mapper.json")
-dataset_path = os.environ.get("DATASET_PATH", "../../../data/raw/X_train_update.csv")
+best_weights_path_pkl = os.environ.get("BEST_WEIGHTS_PATH_PKL", "../../../models/best_weights.pkl")
+data_path = os.environ.get("DATA_PATH", "../../../data/raw")
 images_path = os.environ.get("IMAGES_PATH", "../../../data/raw/image_train")
-predictions_path = os.environ.get("PREDICTIONS_PATH", "../../../data/predictions/predictions.json")
+CONCATENATED_MODEL_PATH = os.environ.get("CONCATENATED_MODEL_PATH", "../../../models/concatenate.h5")
+
+data_importer = DataImporter(filepath=data_path)
+df = data_importer.load_data()
+X_train, X_val, _, y_train, y_val, _ = data_importer.split_train_test(df)
 
 # Preprocess text and images
 text_preprocessor = TextPreprocessor()
-image_preprocessor = ImagePreprocessor()
+image_preprocessor = ImagePreprocessor(filepath=images_path)
 text_preprocessor.preprocess_text_in_df(X_train, columns=["description"])
 text_preprocessor.preprocess_text_in_df(X_val, columns=["description"])
 image_preprocessor.preprocess_images_in_df(X_train)
@@ -55,7 +53,7 @@ lstm_proba, vgg16_proba, new_y_train = model_concatenate.predict(X_train, y_trai
 best_weights = model_concatenate.optimize(lstm_proba, vgg16_proba, new_y_train)
 print("Finished training concatenate model")
 
-with open(best_weights_path, "wb") as file:
+with open(best_weights_path_pkl, "wb") as file:
     pickle.dump(best_weights, file)
 
 num_classes = 27
@@ -72,4 +70,4 @@ concatenate_model = keras.models.Model(
 )
 
 # Enregistrer le modèle au format h5
-concatenate_model.save("/app/models/concatenate.h5")
+concatenate_model.save(CONCATENATED_MODEL_PATH)

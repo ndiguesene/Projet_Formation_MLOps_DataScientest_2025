@@ -81,7 +81,7 @@ def main():
     lstm_model_path = os.environ.get("LSTM_MODEL_PATH", "../../../models/best_lstm_model.h5")
     vgg16_model_path = os.environ.get("VGG16_MODEL_PATH", "../../../models/best_vgg16_model.h5")
     best_weights_path = os.environ.get("BEST_WEIGHTS_PATH", "../../../models/best_weights.json")
-    mapper_path = os.environ.get("MAPPER_PATH", "models/mapper.json")
+    mapper_path = os.environ.get("MAPPER_PATH", "../../../models/mapper.json")
     dataset_path = os.environ.get("DATASET_PATH", "../../../data/raw/X_train_update.csv")
     images_path = os.environ.get("IMAGES_PATH", "../../../data/raw/image_train")
     predictions_path = os.environ.get("PREDICTIONS_PATH", "../../../data/predictions/predictions.json")

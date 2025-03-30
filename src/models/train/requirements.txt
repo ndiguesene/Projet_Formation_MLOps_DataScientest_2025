@@ -10,3 +10,4 @@ scipy==1.11.1
 nltk==3.6.2
 keras==2.13.1
 Pillow==10.0.0
+python-dotenv
