@@ -1,0 +1,4 @@
+# ignore the images test data
+data/raw/image_test
+# Ignore the tes data as predict is using the train data
+data/raw/X_test_update.csv
