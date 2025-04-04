@@ -1,11 +1,13 @@
+# Run at projet root level (important !)
+
 # build the image
-docker build -t predict_on_train .
+docker build -t predict_app -f src/models/predict/Dockerfile .
 
 # create the container : to the .env file, add the following
-cd ../../../
+
 docker run --name predict_container \
     --env-file .env \
-    -v /path/to/local/models:/app/models \
-    -v /path/to/local/data:/app/data \
+    -v models/:/app/models \
+    -v data/:/app/data \
     -p 8000:8000 \
-    predict_on_train
+    predict_app

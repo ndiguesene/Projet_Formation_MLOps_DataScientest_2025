@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM python:3.9-slim
   
 RUN apt-get update && apt-get install python3-pip -y python3-dev
 
@@ -9,17 +9,16 @@ WORKDIR /app
 RUN mkdir -p src/models/predict
 RUN mkdir -p src/features
 
-COPY src/models/predict/requirements.txt ./src/models/predict
+COPY src/models/predict/ ./src/models/predict
 
 # --no-cache-dir ensures that pip doesn't cache the downloaded package files, which will keep your Docker image smaller
 RUN pip3 install --no-cache-dir -r ./src/models/predict/requirements.txt
 
 # Copy the Python scripts into the container
-COPY ./src/models/predict ./src/models/predict
-COPY ./src/features ./src/features
+COPY src/features ./src/features
 
 # Copy setup to find packages
-COPY ./setup.py ./
+COPY setup.py .
 
 # Install the package inside the container
 RUN pip3 install .
