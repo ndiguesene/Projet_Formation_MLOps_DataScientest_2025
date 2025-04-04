@@ -1,4 +1,4 @@
-pickle
+argparse
 tensorboard==2.13.0
 tensorboard-data-server==0.7.1
 tensorflow==2.13.0
@@ -11,3 +11,4 @@ nltk==3.6.2
 keras==2.13.1
 Pillow==10.0.0
 python-dotenv
+bs4
