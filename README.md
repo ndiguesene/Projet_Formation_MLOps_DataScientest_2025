@@ -130,4 +130,51 @@ Niveaux de serving :
 #### Variables d'environnement : vous devez rajouter un fichier .env sur la racine du projet
 Les chemins des modèles (poids, mapper etc) ne sont plus codés en dur. Les modifications suivantes ont été apportées : 
 1. ajout fichier `.env` contenant les variables d'environnement (**ce fichier ne doit pas être poussé sur le git, il peut renfermer des informations sensibles tels clés d'api etc**)
-2. ajout fichier `.env.example` sur le git : fichier d'exemple montrant comment renseigner le fichier .env ( quelle sont les variables d'environnement etc)
+2. ajout fichier `.env.example` sur le git : fichier d'exemple montrant comment renseigner le fichier .env ( quelles sont les variables d'environnement etc)
+
+## Conteneurisation
+Docker est utilisé pour conteneuriser les différents services de l'application. Chaque service dispose d'un répertoire spécifique sur les sources.
+
+### Variables d'environnement
+Le fichier `.env` à la racine du projet, doit être mis en jour avec les répertoires de volume créés dans le conteneur (Exemple : `TOKENIZER_CONFIG_PATH=/app/models/tokenizer_config.json`).
+
+### Services applicatifs
+1. Service de données
+Ici, le service effectue le téléchargement des données depuis le dépôt HuggingFace : `https://huggingface.co/datasets/ndiguesene/ml-datasets-image-rakuten-ecommerce/resolve/main/`.
+
+`Package` : src/data/build_data/
+
+2. Service d'entraînement
+
+`Package` : src/models/train
+Contient les fichiers : 
+- .dockerignore : fichier précisant les fichiers et répertoires à ignorer lors de la construction de l'image
+- Dockerfile : commandes pour créer l'image Docker pour ce service uniquement
+- main.py : script principal contenant la logique d'entrainement global 
+- train_model.py  : script contenant la logique d'entrainement des modèles
+- up.sh : script permettant de lancer un conteneur docker pour ce service uniquement. A lancer depuis la racine du projet.
+- requirements.txt : contient les dépendences requis pour créer l'image 
+
+3. Service de test
+
+Ici, nous utilisons les données d'entraînement pour tester l'usage du modèle.
+`Package` : src/models/predict
+Contient les fichiers : 
+- .dockerignore : fichier précisant les fichiers et répertoires à ignorer lors de la construction de l'image
+- Dockerfile : commandes pour créer l'image Docker pour ce service uniquement
+- predic.py : script principal contenant la logique de test du modèle en utilisant le modèle entraîné et sauvegardé sur le service d'entraînement
+- up.sh : script permettant de lancer un conteneur docker pour ce service uniquement. A lancer depuis la racine du projet.
+- requirements.txt : contient les dépendences requis pour créer l'image 
+
+4. Service de serving
+
+Ici, nous créons une application permettant d'intérroger le modèle via API en utilisant FastAPI.
+`Package` : src/models/serve
+Contient les fichiers : 
+- .dockerignore : fichier précisant les fichiers et répertoires à ignorer lors de la construction de l'image
+- Dockerfile : commandes pour créer l'image Docker pour ce service uniquement
+- predic_logic.py : wrapper créé pour contenir les fonctions requis pour effectuer les prédictions (traitement de l'image, traitement des données textuelles)
+- serve_model_fastapi.py : script principal contenant l'application FastAPI (les endpoints de prédiction)
+- up.sh : script permettant de lancer un conteneur docker pour ce service uniquement. A lancer depuis la racine du projet.
+- requirements.txt : contient les dépendences requis pour créer l'image
+
