@@ -110,10 +110,9 @@ On utilisera **S3 d’AWS** pour sauvegarder les données. Pour cela, il faut d'
  
  
 Une fois S3 installé, il faudra mettre à jour le fichier de configuration `.dvc/config` pour ajouter DagsHub comme notre stockage distant.
----
-## Implémenter une API basique
 
-## Restructuration des répertoires et fichiers
+## Partie 1 : serving, dockerisation et tests unitaires
+### Restructuration des répertoires et fichiers
 
 #### train
 Ici, nous entraînons le modèle (contient les fichiers main.py et train_model.py). Le répertoire contiendra un Dockerfile spécifique pour lancer l'entraînement du modèle à la demande. Les résultats seront enregistrés dans `models` à la racine
@@ -178,3 +177,16 @@ Contient les fichiers :
 - up.sh : script permettant de lancer un conteneur docker pour ce service uniquement. A lancer depuis la racine du projet.
 - requirements.txt : contient les dépendences requis pour créer l'image
 
+### API de prédiction
+Le service de prédiction est composé pour le moment de deux endpoints : 
+- `/status` : pour obtenir le statut de l'application. Retourne un message si l'application est up.
+- `/predict` :  pour obtenir une classifiction d'un code produit en fonction des informations suivantes : 
+`product_identifier`: str = Form(...), # Un identifiant entier pour le produit. Cet identifiant est utilisé pour associer le produit à son code de type de produit correspondant.
+`designation`: str = Form(...), # Le titre du produit, un court texte résumant le produit
+`description`: str = Form(...),  # Un texte plus détaillé décrivant le produit. Tous les commerçants n'utilisent pas ce champ, donc, afin de conserver l’originalité des données, le champ description peut contenir des valeurs NaN pour de nombreux produits.
+`product_id`: str = Form (...), # Un identifiant unique pour ce produit
+`imageid`: str = Form (...), # Un identifinat unique de l'image associé à ce produit.
+`image`: UploadFile = File(...)  # L'image correspondant au produit
+
+![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
+![Retour /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_return.png)
