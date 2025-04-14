@@ -180,13 +180,13 @@ Contient les fichiers :
 ### API de prédiction
 Le service de prédiction est composé pour le moment de deux endpoints : 
 - `/status` : pour obtenir le statut de l'application. Retourne un message si l'application est up.
-- `/predict` :  pour obtenir une classifiction d'un code produit en fonction des informations suivantes : 
-`product_identifier`: str = Form(...), # Un identifiant entier pour le produit. Cet identifiant est utilisé pour associer le produit à son code de type de produit correspondant.
-`designation`: str = Form(...), # Le titre du produit, un court texte résumant le produit
-`description`: str = Form(...),  # Un texte plus détaillé décrivant le produit. Tous les commerçants n'utilisent pas ce champ, donc, afin de conserver l’originalité des données, le champ description peut contenir des valeurs NaN pour de nombreux produits.
-`product_id`: str = Form (...), # Un identifiant unique pour ce produit
-`imageid`: str = Form (...), # Un identifinat unique de l'image associé à ce produit.
-`image`: UploadFile = File(...)  # L'image correspondant au produit
+- `/predict` :  pour obtenir une classifiction d'un code produit en fonction des informations suivantes : </br>
+`product_identifier`: str = Form(...), # Un identifiant entier pour le produit. Cet identifiant est utilisé pour associer le produit à son code de type de produit correspondant. </br>
+`designation`: str = Form(...), # Le titre du produit, un court texte résumant le produit </br>
+`description`: str = Form(...),  # Un texte plus détaillé décrivant le produit. Tous les commerçants n'utilisent pas ce champ, donc, afin de conserver l’originalité des données, le champ description peut contenir des valeurs NaN pour de nombreux produits. </br>
+`product_id`: str = Form (...), # Un identifiant unique pour ce produit </br>
+`imageid`: str = Form (...), # Un identifinat unique de l'image associé à ce produit. </br>
+`image`: UploadFile = File(...)  # L'image correspondant au produit </br>
 
 ![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
-![Retour /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_return.png)
+![Retour /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_return.png)s
