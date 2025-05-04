@@ -193,3 +193,55 @@ Le service de prédiction est composé pour le moment de deux endpoints :
 
 ![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
 ![Retour /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_return.png)s
+
+
+## Suivi du modèle existant best_lstm_model.h5 avec MLflow
+Projet_Formation_MLOps_DataScientest_2025/
+│
+├── models/
+│ ├── best_lstm_model.h5
+│ ├── tokenizer_config.json
+│ ├── mapper.pkl
+│ └── ...
+│
+├── log_existing_model.py
+└── README.md
+
+## ✅ Objectif
+
+Logger le modèle déjà entraîné (`best_lstm_model.h5`) dans MLflow pour :
+- le sauvegarder comme artefact,
+- ajouter des métadonnées (paramètres, tags),
+- le visualiser depuis l'interface web de MLflow,
+- faciliter sa réutilisation (rechargement ou déploiement).
+
+## ⚙️ Pré-requis
+
+- MLflow installé :
+  ```bash
+  pip install mlflow tensorflow
+
+  1. Lancer le tracking server (facultatif si en local)
+ ```bash
+
+   mlflow ui --host 0.0.0.0 --port 5000
+
+```
+ Contenu de log_existing_model.py
+
+```bash
+import mlflow
+import mlflow.keras
+from tensorflow.keras.models import load_model
+
+model = load_model("models/best_lstm_model.h5")
+
+mlflow.set_tracking_uri("file:///home/ubuntu/projet_mlops/Projet_Formation_MLOps_DataScientest_2025/mlruns")
+
+with mlflow.start_run(run_name="Log_Existing_LSTM_Model"):
+    mlflow.log_param("type", "pretrained")
+    mlflow.log_param("format", "H5")
+    mlflow.keras.log_model(model, "lstm_model_logged")
+```
+![alt text](mlflow_experience.png)
+![alt text](mlflow_metrics.png)

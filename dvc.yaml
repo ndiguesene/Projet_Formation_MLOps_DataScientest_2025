@@ -1,0 +1,9 @@
+stages:
+  train:
+    cmd: python src/models/train/train_model.py
+    deps:
+      - src/models/train/train_model.py
+      - data/raw  # Si vous avez des données brutes à traiter
+    outs:
+      - models/best_weights.pkl
+      - models/best_weights.json
