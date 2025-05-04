@@ -111,6 +111,8 @@ On utilisera **S3 d’AWS** pour sauvegarder les données. Pour cela, il faut d'
 Une fois S3 installé, il faudra mettre à jour le fichier de configuration `.dvc/config` pour ajouter DagsHub comme notre stockage distant.
 ---
 ## Implémenter une API basique
+---
+## Implémenter une API basique
 
 ## Partie 1 : serving, dockerisation et tests unitaires
 ### Restructuration des répertoires et fichiers

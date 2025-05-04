@@ -1,3 +1,5 @@
+import zipfile
+from venv import logger
 
 import requests
 import os
@@ -54,7 +56,7 @@ def import_raw_data(raw_data_relative_path, filenames, bucket_folder_url):
                 response.status_code,
             )
     except Exception as e:
-        nonlocalprint(f"An error occurred: {str(e)}")
+        print(f"An error occurred: {str(e)}")
 
 ####################
 # Here we are redefining the methods to get the data from Hugging Face
