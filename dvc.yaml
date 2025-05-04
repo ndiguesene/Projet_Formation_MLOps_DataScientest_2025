@@ -5,6 +5,4 @@ stages:
       - src/models/train/train_model.py
       - data/raw
     outs:
-      # Retire les fichiers supprimés ou obsolètes ici
-      # - models/best_weights.pkl
-      # - models/best_weights.json
+      - models/best_lstm_model.h5  # Ajoute ici tes nouveaux fichiers à suivre
