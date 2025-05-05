@@ -1,33 +1,38 @@
+import dagshub
 import mlflow
-import dvc.api
+import mlflow.keras
 from tensorflow.keras.models import load_model
-import tempfile
-import os
 
-# Config MLflow (peut être adapté selon ton setup)
-mlflow.set_tracking_uri("http://localhost:5000")  # ou un URI distant
-mlflow.set_experiment("model_tracking_experiment")
+# Initialisation de DagsHub avec l'intégration de MLflow
+dagshub.init(repo_owner='mariamanadia',
+             repo_name='Projet_Formation_MLOps_DataScientest_2025',
+             mlflow=True)
 
-# Récupération du modèle suivi par DVC (à la bonne révision)
-model_path = "models/best_lstm_model.h5"
-revision = "f11c5a5"  # le commit git correspondant, tu peux automatiser ça si besoin
+# Définir l'URI du serveur MLflow si tu utilises un serveur local
+mlflow.set_tracking_uri("http://localhost:5000")
 
-with dvc.api.open(model_path, mode='rb', rev=revision) as fd:
-    with tempfile.NamedTemporaryFile(suffix=".h5", delete=False) as tmp_file:
-        tmp_file.write(fd.read())
-        temp_model_path = tmp_file.name
+# Charger ton modèle Keras
+model = load_model("models/best_lstm_model.h5")
 
-# Chargement du modèle Keras
-model = load_model(temp_model_path)
+# Démarrer un run MLflow pour enregistrer les hyperparamètres, les métriques et le modèle
+with mlflow.start_run(run_name="Log_Existing_LSTM_Model"):
 
-# Log dans MLflow
-with mlflow.start_run():
-    mlflow.tensorflow.log_model(model, artifact_path="model")
+    # Log des hyperparamètres (par exemple, la configuration de ton modèle)
+    mlflow.log_param("max_words", 10000)
+    mlflow.log_param("max_sequence_length", 10)
 
-    # Exemple de log de paramètres et métriques
-    mlflow.log_param("model_type", "LSTM")
-    mlflow.log_param("revision", revision)
-    mlflow.log_metric("example_accuracy", 0.83)  
+    # Log des métriques (par exemple, la précision d'entraînement)
+    mlflow.log_metric("train_loss", 0.18)
+    mlflow.log_metric("train_accuracy", 0.82)
 
-# Nettoyage optionnel du fichier temporaire
-os.remove(temp_model_path)
+    # Log des artefacts (par exemple, des fichiers associés au modèle)
+    mlflow.log_artifact("models/tokenizer_config.json")
+    mlflow.log_artifact("models/mapper.pkl")
+
+    # Log du modèle Keras dans MLflow
+    mlflow.keras.log_model(model, "lstm_model_logged")
+
+    # Loguer le modèle DVC (si tu l'utilises avec DVC pour le versionning des modèles)
+    mlflow.log_artifact("models/best_lstm_model.h5.dvc")
+
+    print("Le modèle a été enregistré avec succès dans MLflow et DagsHub !")

@@ -23,7 +23,10 @@ with mlflow.start_run(run_name="Log_Existing_LSTM_Model"):
     mlflow.log_artifact("models/tokenizer_config.json")
     mlflow.log_artifact("models/mapper.pkl")
 
-    # Log du modèle
+    # Log du modèle Keras
     mlflow.keras.log_model(model, "lstm_model_logged")
+
+    # Loguer le modèle DVC (en s'assurant qu'il est bien suivi par DVC)
+    mlflow.log_artifact("models/best_lstm_model.h5")
 
     print("Le modèle a été enregistré avec succès dans MLflow !")

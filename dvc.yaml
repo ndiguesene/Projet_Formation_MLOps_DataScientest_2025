@@ -4,5 +4,4 @@ stages:
     deps:
       - src/models/train/train_model.py
       - data/raw
-    outs:
-      - models/best_lstm_model.h5  # Ajoute ici tes nouveaux fichiers à suivre
+ 

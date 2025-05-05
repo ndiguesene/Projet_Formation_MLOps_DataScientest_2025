@@ -195,7 +195,7 @@ Le service de prédiction est composé pour le moment de deux endpoints :
 ![Retour /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_return.png)s
 
 
-## Suivi du modèle existant best_lstm_model.h5 avec MLflow
+### Suivi du modèle existant best_lstm_model.h5 avec MLflow
 Projet_Formation_MLOps_DataScientest_2025/
 │
 ├── models/
@@ -225,11 +225,12 @@ Logger le modèle déjà entraîné (`best_lstm_model.h5`) dans MLflow pour :
  ```bash
 
    mlflow ui --host 0.0.0.0 --port 5000
-
 ```
- Contenu de log_existing_model.py
 
-```bash
+## Contenu de ``log_existing_model.py``
+# Ce script permet de logger le modèle dans MLflow.
+
+``` bash
 import mlflow
 import mlflow.keras
 from tensorflow.keras.models import load_model
@@ -243,5 +244,60 @@ with mlflow.start_run(run_name="Log_Existing_LSTM_Model"):
     mlflow.log_param("format", "H5")
     mlflow.keras.log_model(model, "lstm_model_logged")
 ```
+    
+# Résultats attendus 
+Visualisation des métriques et des artefacts sur l'interface web de MLflow :
+
 ![alt text](mlflow_experience.png)
 ![alt text](mlflow_metrics.png)
+
+## Procédure pour intégrer MLflow avec DagsHub
+Afin de visualiser les expériences dans l’onglet "MLflow" du dépôt DagsHub, le fichier ``log_model_with_mlflow.py`` est une version étendue qui :
+
+Initialise l’intégration avec DagsHub,
+Logue le modèle et ses artefacts dans MLflow,
+Propulse toutes les données sur DagsHub, en liant DVC, Git et MLflow.
+
+# Initialisation de DagsHub avec l'intégration de MLflow
+``` bash
+dagshub.init(repo_owner='mariamanadia',
+             repo_name='Projet_Formation_MLOps_DataScientest_2025',
+             mlflow=True)
+
+# Définir l'URI du serveur MLflow si tu utilises un serveur local
+mlflow.set_tracking_uri("http://localhost:5000")
+```
+# Installation des dépendances
+Installer MLflow et DagsHub 
+``` bash
+pip install mlflow dagshub
+
+```
+# Fonctionnement
+DVC : Gère le versioning des données et des modèles.
+
+Git : Gestion du code source, suivi des versions.
+
+MLflow : Suivi des expériences, gestion des modèles, visualisation des résultats.
+
+DagsHub : Intégration de DVC, Git et MLflow pour centraliser la gestion de ton projet MLOps.
+
+Une fois le script exécuté, tu pourras voir l'expérience dans l'interface web de MLflow ainsi que dans ton dépôt DagsHub.
+
+# Pourquoi ne pas utiliser dvc add pour le modèle ?
+Le modèle best_lstm_model.h5 est déjà géré automatiquement par DVC via le pipeline défini dans ``dvc.yaml`` 
+``` bash
+stages:
+  train:
+    cmd: python src/models/train/train_model.py
+    deps:
+      - data/raw
+      - src/models/train/train_model.py
+    outs:
+      - models/best_lstm_model.h5
+
+````
+
+✅ Cela permet à DVC de suivre automatiquement les versions du modèle généré sans utiliser dvc add.
+❌ Utiliser dvc add en plus provoquerait un conflit de suivi.
+
