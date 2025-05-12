@@ -8,6 +8,9 @@ WORKDIR /app
 # Set PYTHONPATH to include /app
 ENV PYTHONPATH=/app
 
+# Create the logs directory
+RUN mkdir -p /app/logs
+
 # Create the src/data directory structure : -p flag ensures that Docker creates any missing parent directories
 RUN mkdir -p src/models/predict
 RUN mkdir -p src/features

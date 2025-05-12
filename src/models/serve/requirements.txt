@@ -12,3 +12,6 @@ nltk==3.8.1
 bs4
 python-multipart
 python-dotenv
+slowapi
+python-jose[cryptography]
+passlib[bcrypt]

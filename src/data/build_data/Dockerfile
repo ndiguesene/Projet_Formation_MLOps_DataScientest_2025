@@ -5,6 +5,9 @@ RUN apt-get update && apt-get install python3-pip -y python3-dev
 # Set the working directory
 WORKDIR /app
 
+# Create the logs directory
+RUN mkdir -p /app/logs
+
 # Create the src/data directory structure : -p flag ensures that Docker creates any missing parent directories
 RUN mkdir -p src/data/build_data
 
