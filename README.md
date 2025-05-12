@@ -110,7 +110,6 @@ On utilisera **S3 d’AWS** pour sauvegarder les données. Pour cela, il faut d'
  
  
 Une fois S3 installé, il faudra mettre à jour le fichier de configuration `.dvc/config` pour ajouter DagsHub comme notre stockage distant.
-<<<<<<< HEAD
 ---
 ## Implémenter une API basique
 =======
@@ -194,4 +193,3 @@ Le service de prédiction est composé pour le moment de deux endpoints :
 
 ![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
 ![Retour /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_return.png)s
->>>>>>> origin/awa/restructure_folders
