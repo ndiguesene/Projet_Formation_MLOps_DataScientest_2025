@@ -254,8 +254,11 @@ with mlflow.start_run(run_name="Log_Existing_LSTM_Model"):
 # Résultats attendus 
 Visualisation des métriques et des artefacts sur l'interface web de MLflow :
 
-![alt text](mlflow_experience.png)
-![alt text](mlflow_metrics.png)
+![alt text](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/master/reports/mlfow_experiment.png)
+
+![alt text](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/master/reports/mlflow_metrics.png)
+
+
 
 ## Procédure pour intégrer MLflow avec DagsHub
 Afin de visualiser les expériences dans l’onglet "MLflow" du dépôt DagsHub, le fichier ``log_model_with_mlflow.py`` est une version étendue qui :
