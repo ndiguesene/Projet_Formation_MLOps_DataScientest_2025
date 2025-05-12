@@ -304,7 +304,7 @@ DagsHub : Intégration de DVC, Git et MLflow pour centraliser la gestion de ton 
 Une fois le script exécuté, tu pourras voir l'expérience dans l'interface web de MLflow ainsi que dans ton dépôt DagsHub.
 
  MLFLOW sur Dags
-![alt text](https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025/experiments)
+![MLFLOW / DAGSHUB](https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025/experiments)
 
 # Pourquoi ne pas utiliser dvc add pour le modèle ?
 Le modèle best_lstm_model.h5 est déjà géré automatiquement par DVC via le pipeline défini dans ``dvc.yaml`` 
