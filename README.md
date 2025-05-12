@@ -261,20 +261,29 @@ Visualisation des métriques et des artefacts sur l'interface web de MLflow :
 
 
 ## Procédure pour intégrer MLflow avec DagsHub
-Afin de visualiser les expériences dans l’onglet "MLflow" du dépôt DagsHub, le fichier ``log_model_with_mlflow.py`` est une version étendue qui :
+Afin de visualiser les expériences dans l'onglet "MLflow" du dépôt DagsHub, le fichier ``log_with_mlflow.py`` est une version étendue qui :
 
-Initialise l’intégration avec DagsHub,
-Logue le modèle et ses artefacts dans MLflow,
-Propulse toutes les données sur DagsHub, en liant DVC, Git et MLflow.
+- Initialise l'intégration avec DagsHub,
+
+- Logue le modèle et ses artefacts dans MLflow,
+
+- Propulse toutes les données sur DagsHub, en liant DVC, Git et MLflow
+
 
 # Initialisation de DagsHub avec l'intégration de MLflow
+le script `log_with_mlflow.py`
+
 ``` bash
+import dagshub
 dagshub.init(repo_owner='mariamanadia',
              repo_name='Projet_Formation_MLOps_DataScientest_2025',
              mlflow=True)
 
-# Définir l'URI du serveur MLflow si tu utilises un serveur local
-mlflow.set_tracking_uri("http://localhost:5000")
+import mlflow
+with mlflow.start_run():
+  mlflow.log_param('parameter name', 'value')
+  mlflow.log_metric('metric name', 1)
+
 ```
 # Installation des dépendances
 Installer MLflow et DagsHub 
@@ -282,7 +291,8 @@ Installer MLflow et DagsHub
 pip install mlflow dagshub
 
 ```
-# Fonctionnement
+
+Fonctionnement
 DVC : Gère le versioning des données et des modèles.
 
 Git : Gestion du code source, suivi des versions.
@@ -292,6 +302,9 @@ MLflow : Suivi des expériences, gestion des modèles, visualisation des résult
 DagsHub : Intégration de DVC, Git et MLflow pour centraliser la gestion de ton projet MLOps.
 
 Une fois le script exécuté, tu pourras voir l'expérience dans l'interface web de MLflow ainsi que dans ton dépôt DagsHub.
+
+ MLFLOW sur Dags
+![alt text](https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025/experiments)
 
 # Pourquoi ne pas utiliser dvc add pour le modèle ?
 Le modèle best_lstm_model.h5 est déjà géré automatiquement par DVC via le pipeline défini dans ``dvc.yaml`` 
