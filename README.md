@@ -200,6 +200,62 @@ Le service de prédiction est composé pour le moment de deux endpoints :
 ![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
 ![Retour /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_return.png)s
 
+### Services : sécurisation et logging
+
+##### Découplage en services
+Chaque fonctionnalité du système (téléchargement et traitement des données, entraînement du modèle concaténé, test du modèle entraîné et serving) est défini en service respectivement situés dans les répertoires : src/data, src/models/train, src/models/predict, src/models/serve.
+Chaque service est utilisable de façon découplé via des conteneurs Docker ainsi que tous les packages requis pour son bon fonctionnement.
+
+##### Limitation taux de requête
+La limitation du débit permet d'éviter les abus et de garantir une utilisation équitable de l'API.
+La limite de 10 requêtes par minutes sur /predict est appliquée.
+Un gestionnaire d'exception global pour RateLimitExceeded garantit que les utilisateurs reçoivent un message d'erreur clair lorsque les limites sont dépassées.
+
+##### Authentification et authorisation
+Vous avez mis en œuvre OAuth2 avec JWT pour sécuriser les points de terminaison. Les clés d'authenication sont tous sauvegardés comme variables d'environnement.
+Le point de terminaison `/token` génère des jetons d'accès, et la dépendance `get_current_user` garantit que seuls les utilisateurs authentifiés peuvent accéder aux points de terminaison protégés comme `/predict`.
+La protection des points de terminaison sensibles comme `/predict` garantit que seuls les utilisateurs autorisés peuvent accéder à vos modèles. 
+La logique de sécurité est séparée dans security_logic.py, ce qui rend la base de code plus modulaire et réutilisable.
+Dans cette version, les utilisateurs ne sont pas dans une base de données.
+- `security_logic.py` : wrapper contenant les logiques d'authentification et d'authorisation utilisés par le script principal.
+
+##### Logging
+Nous avons mis en place un intergiciel qui enregistre chaque demande avec un identifiant unique, une méthode, une URL, un code d'état et un temps de traitement.
+La journalisation est essentielle pour le débogage, la surveillance et l'audit.
+L'inclusion des identifiants des requêtes et des temps de traitement facilite le suivi et l'optimisation des performances. 
+- `import_data_logger.log`
+- `train_model_logger.log`
+- `test_model_logger.log`
+- `serving_logger.log`
+
+Nous avons inclu un (RotateFileHandler) pour gérer la limitation de la taille des fichiers de logs.
+
+##### Chargement des modèles au démarrage
+Nous avons rajouté une méthode au démarrage de l'application de prédiction pour charger tous les modèles et fichiers de configuration pour éviter leur chargement à chaque demande de prédiction.
+
+##### Orchestration
+Le fichier `docker-compose.xml` à la racine du projet est utilisé pour orchestrer tous les services du projet. Nous utilisons le fichier .env pour assurer la réusabilité des différents environnemenst (production, staging etc) et la modularité.
+
+##### Technologies utilisées
+1. Docker : utilisé pour créer chaque service de l'application en un conteneur indépendant
+2. Logging et FileHandler : nous utilisons un logging centralisé pour chaque service (téléchargement et traitement des données, entraînement du modèle concaténé, test du modèle entraîné et serving).
+Chaque service retourne un fichier log spécifique disponible dans le répertoire logs/ à la racine du projet.
+3. Slowapi : utilisé pour limiter le taux de requête sur les routes.
+4. Oauth2 et JWT : sécurisation des routes d'API en terme d'authentification et d'authorisation.
+5. bcrypt : encryption des informations utilisateurs (mots de passe) pour comparaison et validation des informations
+
+##### Usage : 
+
+- Demander un token : `/token`
+`curl -X POST "http://127.0.0.1:8000/token" -d "username=user1&password=43SoYourAreADataEngineer34"`
+Exemple retours : 
+{
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "token_type": "bearer"
+}
+- Utiliser le token pour intérroger l'API de prédiction : `/predict_code`
+
+![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/securing_apis/reports/securing_api_authorized.png)
 
 ### Suivi du modèle existant best_lstm_model.h5 avec MLflow
 Projet_Formation_MLOps_DataScientest_2025/
