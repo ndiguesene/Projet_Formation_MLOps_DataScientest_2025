@@ -21,7 +21,7 @@ RUN pip install --no-cache-dir -r ./src/data/build_data/requirements.txt
 COPY setup.py .
 
 # Install the package inside the container
-RUN pip3 install .
+RUN pip3 install -e .
 
 
 CMD ["python3", "./src/data/build_data/import_raw_data.py"]

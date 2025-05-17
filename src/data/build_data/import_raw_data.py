@@ -1,9 +1,10 @@
 import zipfile
-from venv import logger
 
 import requests
 import os
 import logging
+from logging.handlers import RotatingFileHandler
+from logging import Formatter, getLogger
 from src.data.build_data.check_structure import check_existing_file, check_existing_folder
 from dotenv import load_dotenv
 
@@ -81,7 +82,7 @@ BASE_URL = "https://huggingface.co/datasets/ndiguesene/ml-datasets-image-rakuten
 # Directory where to save the raw data : added /app for dockerization needs
 RAW_DATA_PATH = os.environ.get("DATA_PATH", "../../../data/raw")
 
-def download_file(url, output_path):
+def download_file(url, output_path,logger):
     """Télécharge un fichier depuis une URL et l'enregistre à output_path."""
     if os.path.exists(output_path):
         logger.info(f"Le fichier {output_path} existe déjà, téléchargement ignoré.")
@@ -121,7 +122,7 @@ def main_s3(
     logger = logging.getLogger(__name__)
     logger.info("making raw data set")
 
-def main():
+def main(logger):
     """Télécharge les fichiers CSV et ZIP, puis décompresse le fichier ZIP."""
     os.makedirs(RAW_DATA_PATH, exist_ok=True)  # Créer le dossier si nécessaire
 
@@ -130,14 +131,25 @@ def main():
         file_path = os.path.join(RAW_DATA_PATH, filename)
 
         # Télécharger chaque fichier
-        download_file(file_url, file_path)
+        download_file(file_url, file_path, logger)
 
         # Décompresser le ZIP après téléchargement
         if filename.endswith(".zip"):
             unzip_file(file_path, RAW_DATA_PATH)
 
 if __name__ == "__main__":
-    log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    logging.basicConfig(level=logging.INFO, format=log_fmt)
+    #log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    #logging.basicConfig(level=logging.INFO, format=log_fmt)
+    logger = logging.getLogger(__name__)
+    log_file_path=os.environ.get("IMPORT_DATA_LOGGER_PATH", "../../../logs/train_model_logger.log")
+    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+    fileHandler = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=3)
+    
+    formatter = Formatter(
+        "%(asctime)s [%(levelname)s] %(message)s"
+    )
+    fileHandler.setFormatter(formatter)
+    logger.addHandler(fileHandler)
+    logger.setLevel(logging.INFO)
 
-    main()
+    main(logger)
