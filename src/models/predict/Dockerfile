@@ -31,6 +31,6 @@ RUN python3 -m nltk.downloader punkt_tab
 COPY setup.py .
 
 # Install the package inside the container
-RUN pip3 install .
+RUN pip3 install -e .
 
 ENTRYPOINT ["python3", "./src/models/predict/predict.py"]

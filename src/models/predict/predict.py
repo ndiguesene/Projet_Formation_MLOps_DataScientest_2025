@@ -13,6 +13,7 @@ import os
 from dotenv import load_dotenv
 import logging
 from logging.handlers import RotatingFileHandler
+from logging import Formatter, getLogger
 import time
 
 
@@ -74,15 +75,19 @@ class Predict:
 def main():
     # Load environment variables from .env file
     load_dotenv()
+
     logger = logging.getLogger(__name__)
     log_file_path=os.environ.get("TEST_MODEL_LOGGER_PATH", "../../../logs/test_model_logger.log")
     os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
-    fileHandler = logging.RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=3)
-    logger.addHandler(fileHandler)
-    formatter = logging.Formatter(
+    fileHandler = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=3)
+    
+    formatter = Formatter(
         "%(asctime)s [%(levelname)s] %(message)s"
     )
-    logger.setFormatter(formatter)
+    fileHandler.setFormatter(formatter)
+    logger.addHandler(fileHandler)
+    logger.setLevel(logging.INFO)
+
 
     # Load paths from environment variables
     tokenizer_config_path = os.environ.get("TOKENIZER_CONFIG_PATH", "../../../models/tokenizer_config.json")

@@ -28,7 +28,7 @@ RUN python3 -m nltk.downloader punkt_tab
 COPY setup.py .
 
 # Install the package inside the container
-RUN pip3 install .
+RUN pip3 install -e .
 
 # Expose the port for FastAPI
 EXPOSE 8001

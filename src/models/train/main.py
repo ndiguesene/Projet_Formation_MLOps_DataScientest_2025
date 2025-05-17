@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 import logging
 from logging.handlers import RotatingFileHandler
+from logging import Formatter, getLogger
 
 load_dotenv()
 # Load paths from environment variables
@@ -22,12 +23,15 @@ CONCATENATED_MODEL_PATH = os.environ.get("CONCATENATED_MODEL_PATH", "../../../mo
 logger = logging.getLogger(__name__)
 log_file_path=os.environ.get("TRAIN_MODEL_LOGGER_PATH", "../../../logs/train_model_logger.log")
 os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
-fileHandler = logging.RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=3)
-logger.addHandler(fileHandler)
-formatter = logging.Formatter(
+fileHandler = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=3)
+    
+formatter = Formatter(
     "%(asctime)s [%(levelname)s] %(message)s"
 )
-logger.setFormatter(formatter)
+fileHandler.setFormatter(formatter)
+logger.addHandler(fileHandler)
+logger.setLevel(logging.INFO)
+
 
 data_importer = DataImporter(filepath=data_path)
 df = data_importer.load_data()

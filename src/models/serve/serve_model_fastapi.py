@@ -17,6 +17,7 @@ from src.models.serve.security_logic import (
 from datetime import timedelta
 import logging
 from logging.handlers import RotatingFileHandler
+from logging import Formatter, getLogger
 import os
 from dotenv import load_dotenv
 from uuid import uuid4
@@ -42,15 +43,19 @@ class PredictionResponse(BaseModel):
 # Securing API 1 : logging handler and formatter
 # Load environment variables from .env file
     load_dotenv()
+
 logger = logging.getLogger(__name__)
 log_file_path=os.environ.get("SERVING_LOGGER_PATH", "../../../logs/serving_logger.log")
 os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
-fileHandler = logging.RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=3)
-logger.addHandler(fileHandler)
-formatter = logging.Formatter(
+fileHandler = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=3)
+    
+formatter = Formatter(
     "%(asctime)s [%(levelname)s] %(message)s"
- )
-logger.setFormatter(formatter)
+)
+fileHandler.setFormatter(formatter)
+logger.addHandler(fileHandler)
+logger.setLevel(logging.INFO)
+
 
 # Securing API 2 : Add a global exception handler for rate limiting
 # Initialize the Limiter
