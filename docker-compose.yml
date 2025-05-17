@@ -1,47 +1,76 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  # Service pour l'importation initiale des données
-  import-data:
+  data_service:
     build:
-      context: .
+      context: ./src/data/build_data  # Path to the directory containing the Dockerfile
       dockerfile: Dockerfile
-    image: ml-project:latest
-    container_name: ml-project-import-data
+    container_name: data_service
     volumes:
-      - ./data:/app/data
+      - ./logs:/app/logs  # Map logs directory
+      - ./data:/app/data  # Map data directory
     environment:
-      - PYTHONUNBUFFERED=1
-    command: python src/data/import_raw_data.py
+      - DATA_PATH=${DATA_PATH}
+      - IMPORT_DATA_LOGGER_PATH=${IMPORT_DATA_LOGGER_PATH}
+    command: ["python3", "./src/data/build_data/import_raw_data.py"]
 
-  # Service pour prétraiter les données (copier de /data/raw vers /data/preprocessed)
-  files-preprocess:
+  training_service:
     build:
-      context: .
+      context: ./src/models/train  # Path to the directory containing the Dockerfile
       dockerfile: Dockerfile
-    image: ml-project:latest
-    container_name: ml-project-preprocess
+    container_name: training_service
     volumes:
-      - ./data:/app/data
+      - ./logs:/app/logs  # Map logs directory
+      - ./models:/app/models  # Map models directory
+      - ./data:/app/data  # Map data directory
     environment:
-      - PYTHONUNBUFFERED=1
-    #command: python src/data/make_dataset.py
-    command: python src/data/make_dataset.py /app/data/raw /app/data/preprocessed
-    depends_on:
-      - import-data
+      - TRAIN_MODEL_LOGGER_PATH=${TRAIN_MODEL_LOGGER_PATH}
+      - TOKENIZER_CONFIG_PATH=${TOKENIZER_CONFIG_PATH}
+      - LSTM_MODEL_PATH=${LSTM_MODEL_PATH}
+      - VGG16_MODEL_PATH=${VGG16_MODEL_PATH}
+      - BEST_WEIGHTS_PATH_PKL=${BEST_WEIGHTS_PATH_PKL}
+      - DATA_PATH=${DATA_PATH}
+      - IMAGES_PATH=${IMAGES_PATH}
+      - CONCATENATED_MODEL_PATH=${CONCATENATED_MODEL_PATH}
+    command: ["python3", "./src/models/train/train_model.py"]
 
-  # Service pour l'entraînement après prétraitement
-  train:
+  testing_service:
     build:
-      context: .
+      context: ./src/models/predict  # Path to the directory containing the Dockerfile
       dockerfile: Dockerfile
-    image: ml-project:latest
-    container_name: ml-project-train
+    container_name: testing_service
     volumes:
-      - ./data:/app/data
-      - ./models:/app/models
+      - ./logs:/app/logs  # Map logs directory
+      - ./models:/app/models  # Map models directory
+      - ./data:/app/data  # Map data directory
     environment:
-      - PYTHONUNBUFFERED=1
-    command: python src/main.py
-    depends_on:
-      - files-preprocess
+      - TOKENIZER_CONFIG_PATH=${TOKENIZER_CONFIG_PATH}
+      - LSTM_MODEL_PATH=${LSTM_MODEL_PATH}
+      - VGG16_MODEL_PATH=${VGG16_MODEL_PATH}
+      - BEST_WEIGHTS_PATH=${BEST_WEIGHTS_PATH}
+      - MAPPER_PATH=${MAPPER_PATH}
+      - DATASET_PATH=${DATASET_PATH}
+      - IMAGES_PATH=${IMAGES_PATH}
+      - PREDICTIONS_PATH=${PREDICTIONS_PATH}
+      - TEST_MODEL_LOGGER_PATH=${TEST_MODEL_LOGGER_PATH}
+    command: ["python3", "./src/models/train/train_model.py"]
+
+  serving_service:
+    build:
+      context: ./src/models/serve  # Path to the directory containing the Dockerfile
+      dockerfile: Dockerfile
+    container_name: serving_service
+    ports:
+      - "8000:8000"  # Expose FastAPI service on port 8000
+    volumes:
+      - ./logs:/app/logs  # Map logs directory
+      - ./models:/app/models  # Map models directory
+    environment:
+      - SERVING_LOGGER_PATH=${SERVING_LOGGER_PATH}
+      - CONCATENATED_MODEL_PATH=${CONCATENATED_MODEL_PATH}
+      - TOKENIZER_CONFIG_PATH=${TOKENIZER_CONFIG_PATH}
+      - LSTM_MODEL_PATH=${LSTM_MODEL_PATH}
+      - VGG16_MODEL_PATH=${VGG16_MODEL_PATH}
+      - BEST_WEIGHTS_PATH=${BEST_WEIGHTS_PATH}
+      - MAPPER_PATH=${MAPPER_PATH}
+    command: ["uvicorn", "src.models.serve.serve_model_fastapi:app", "--host", "0.0.0.0", "--port", "8000"]
