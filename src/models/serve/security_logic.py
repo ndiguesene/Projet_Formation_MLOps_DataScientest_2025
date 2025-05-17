@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 import os
 from dotenv import load_dotenv
+import bcrypt
 
 # `hardcoded-credentials` Embedding credentials in source code risks unauthorized access
 # and should be avoided. Instead, use environment variables or secure vaults to manage sensitive information.
@@ -13,33 +13,37 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Secret key and algorithm
-SECRET_KEY = os.getenv("SERVING_SECRET_KEY", "your_secret_key_here")
+SECRET_KEY = os.getenv("SERVING_SECRET_KEY", "i_am_hidden_somewhere")
 ALGORITHM = os.getenv("SERVING_ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("SERVING_ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 
 # Password hashing context
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+#pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # OAuth2 scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+# Utility functions
+def verify_password(plain_password, hashed_password):
+   # Verify the plain password against the hashed password
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+def get_password_hash(password):
+    # Generate a salt and hash the password
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed_password.decode('utf-8')
+
 # Mock user database
 fake_users_db = {
-    "user1": {
-        "username": "user1",
-        "full_name": "John Doe",
-        "email": "user1@example.com",
-        "hashed_password": pwd_context.hash("password123"),
+    "data_engineer": {
+        "username": "data_engineer",
+        "full_name": "Data Engineer",
+        "email": "rakuten@example.com",
+        "hashed_password": get_password_hash("43SoYourAreADataEngineer34"),
         "disabled": False,
     }
 }
-
-# Utility functions
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
 
 def get_user(db, username: str):
     user = db.get(username)

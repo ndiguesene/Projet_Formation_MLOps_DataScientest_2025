@@ -3,6 +3,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from typing import Optional
 from PIL import Image
+import json
+from tensorflow import keras
 import numpy as np
 import pandas as pd
 import io
@@ -56,6 +58,44 @@ fileHandler.setFormatter(formatter)
 logger.addHandler(fileHandler)
 logger.setLevel(logging.INFO)
 
+@app.on_event("startup")
+async def load_models():
+    global model
+    global tokenizer
+    global lstm
+    global vgg16
+    global best_weights
+    global mapper
+    
+    # Load environment variables from .env file
+    load_dotenv()
+
+    # Load paths from environment variables
+    model_path = os.environ.get("CONCATENATED_MODEL_PATH", "../../../models/concatenate.h5")
+    #model = tf.keras.models.load_model(model_path)
+    # Load tokenizer and model configurations
+    tokenizer_config_path = os.environ.get("TOKENIZER_CONFIG_PATH", "../../../models/tokenizer_config.json")
+    lstm_model_path = os.environ.get("LSTM_MODEL_PATH", "../../../models/best_lstm_model.h5")
+    vgg16_model_path = os.environ.get("VGG16_MODEL_PATH", "../../../models/best_vgg16_model.h5")
+    best_weights_path = os.environ.get("BEST_WEIGHTS_PATH", "../../../models/best_weights.json")
+    mapper_path = os.environ.get("MAPPER_PATH", "../../../models/mapper.json")
+
+    # Charger les configurations et modèles
+    with open(tokenizer_config_path, "r", encoding="utf-8") as json_file:
+        tokenizer_config = json_file.read()
+    tokenizer = keras.preprocessing.text.tokenizer_from_json(tokenizer_config)
+
+    lstm = keras.models.load_model(lstm_model_path)
+    vgg16 = keras.models.load_model(vgg16_model_path)
+
+    with open(best_weights_path, "r") as json_file:
+        best_weights = json.load(json_file)
+
+    with open(mapper_path, "r") as json_file:
+        mapper = json.load(json_file)
+
+    #model = tf.keras.models.load_model(model_path)
+    logger.info("Models and files loaded successfully.")
 
 # Securing API 2 : Add a global exception handler for rate limiting
 # Initialize the Limiter
@@ -78,7 +118,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Apply rate limiting to the /status endpoint
 @app.get("/status")
 @limiter.limit("5/minute")  # Allow 5 requests per minute per client
-def status():
+def get_status(request: Request):
     return {"message": "Model Serving via FastAPI is running !"}
 
 # Securing API 3 : Token endpoint
@@ -101,6 +141,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 @app.post("/predict", response_model=PredictionResponse)
 @limiter.limit("10/minute")  # Allow 10 requests per minute per client
 async def predict_code(
+    request: Request,
     product_identifier: str = Form(...), # An integer ID for the product. This ID is used to associate the product with its corresponding product type code.
     designation: str = Form(...), # The product title, a short text summarizing the product.
     description: str = Form(...),  # A more detailed text describing the product. Not all the merchants use this field, so to retain originality of the data, the description field can contain NaN value for many products.
@@ -122,7 +163,7 @@ async def predict_code(
 
     # handling potential errors : model loading, image processing, prediction
     try:
-        predictions = make_prediction(df, processed_image)
+        predictions = make_prediction(df, processed_image, tokenizer, lstm, vgg16, best_weights, mapper)
     except Exception as e:
         logger.error(f"Error during prediction: {e}")
         raise HTTPException(

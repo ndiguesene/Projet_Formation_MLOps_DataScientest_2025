@@ -29,8 +29,8 @@ COPY setup.py .
 
 # Install the package inside the container
 RUN pip3 install -e .
-
+ 
 # Expose the port for FastAPI
-EXPOSE 8001
+EXPOSE 8000
 
-CMD ["uvicorn", "src.models.serve.serve_model_fastapi:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["uvicorn", "src.models.serve.serve_model_fastapi:app", "--host", "0.0.0.0", "--port", "8000"]
