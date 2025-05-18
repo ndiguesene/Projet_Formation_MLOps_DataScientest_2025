@@ -12,7 +12,7 @@ services:
       - ./data:/app/data
     environment:
       - PYTHONUNBUFFERED=1
-    command: python src/data/import_raw_data.py
+    command: python src/data/build_data/import_raw_data.py
 
   # Service pour prétraiter les données (copier de /data/raw vers /data/preprocessed)
   files-preprocess:
@@ -26,7 +26,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     #command: python src/data/make_dataset.py
-    command: python src/data/make_dataset.py /app/data/raw /app/data/preprocessed
+    command: python src/data/build_data/make_dataset.py /app/data/raw /app/data/preprocessed
     depends_on:
       - import-data
 
@@ -42,6 +42,6 @@ services:
       - ./models:/app/models
     environment:
       - PYTHONUNBUFFERED=1
-    command: python src/main.py
+    command: python src/models/train/main.py
     depends_on:
       - files-preprocess

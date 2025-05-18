@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
-from main import api
+from Projet_Formation_MLOps_DataScientest_2025.api import app
 
-client = TestClient(api)
+client = TestClient(app)
 
 def test_status():
     response = client.get("/status")
@@ -11,12 +11,14 @@ def test_status():
 def test_root():
     response = client.get("/")
     assert response.status_code == 200
-    assert "Bienvenue" in response.json()["message"]
+    data = response.json()
+    assert "message" in data
+    assert "Bienvenue" in data["message"]
 
 def test_predict():
-    sample_text = {"text": "exemple de texte"}  # adapte ce texte si besoin
+    sample_text = {"predicted": "1", "label": "label_1"}
     response = client.post("/predict", json=sample_text)
     assert response.status_code == 200
-    assert "predicted_class" in response.json()
-    assert "class_label" in response.json()
-
+    data = response.json()
+    assert "predicted" in data
+    assert "label" in data

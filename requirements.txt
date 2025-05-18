@@ -94,3 +94,7 @@ Werkzeug==2.3.6
 wheel==0.38.4
 wrapt==1.15.0
 zipp==3.16.2
+pytest>=7.0
+httpx
+uvicorn
+fastapi

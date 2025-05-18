@@ -319,7 +319,104 @@ stages:
       - models/best_lstm_model.h5
 
 ````
+Cela permet à DVC de suivre automatiquement les versions du modèle généré sans utiliser dvc add.
+Utiliser dvc add en plus provoquerait un conflit de suivi.
 
-✅ Cela permet à DVC de suivre automatiquement les versions du modèle généré sans utiliser dvc add.
-❌ Utiliser dvc add en plus provoquerait un conflit de suivi.
+# Test Unitaire
+## Documentation des tests unitaires
+
+Ce document décrit les tests unitaires définis pour l’API FastAPI. Ils couvrent les trois endpoints principaux : racine (`/`), `GET /status` et `POST /predict`.
+
+---
+
+## Prérequis
+
+- Python 3.9
+- FastAPI
+- Uvicorn (pour lancer l’API si besoin)
+- pytest
+- httpx (installé automatiquement avec FastAPI)
+
+Installer les dépendances :
+
+```bash
+  pip install fastapi uvicorn pytest httpx
+```
+
+## Lancer les tests
+
+Depuis la racine du projet (là où se trouve src/ et tests/), exécuter :
+
+```bash
+   pytest tests/test_api.py
+```
+## Structure des tests
+
+Le fichier tests/test_api.py contient trois fonctions :
+```python
+from fastapi.testclient import TestClient
+from Projet_Formation_MLOps_DataScientest_2025.api import app
+
+client = TestClient(app)
+```
+Chaque test utilise un TestClient pour simuler des requêtes HTTP vers l’application FastAPI.
+
+1. **test_status**
+   2. Objectif : vérifier que l’endpoint GET /status renvoie bien un code HTTP 200 et le message attendu. 
+   3. script
+      ```python
+      def test_status():
+          response = client.get("/status")
+          assert response.status_code == 200
+          assert response.json() == {"status": "L'API fonctionne correctement"}
+      ```
+   3. Requête : 
+   ```http request
+   GET /status
+   ```
+   4. Assertions :
+      - `response.status_code == 200`
+      - `response.json() == {"status": "L'API fonctionne correctement"}`
+
+   2. **test_root**
+      3. Objectif : valider que la racine / renvoie un message de bienvenue.
+      4. script
+      ```python
+      def test_root():
+          response = client.get("/")
+          assert response.status_code == 200
+          data = response.json()
+          assert "message" in data
+          assert "Bienvenue" in data["message"]
+         ```
+      4. Requête :
+      ```http request
+      GET /
+      ```
+      5. Assertions
+         - `response.status_code == 200`
+         - `Le corps JSON contient une clé message`
+         - `La chaîne "Bienvenue" apparaît dans la valeur de message`
+
+3. **test_predict**
+   4. Objectif : s’assurer que l’endpoint POST /predict accepte un payload JSON arbitraire et retourne un JSON avec les clés predicted et label.
+   5. script
+   ```python
+   def test_predict():
+       sample_text = {"predicted": "1", "label": "label_1"}
+       response = client.post("/predict", json=sample_text)
+       assert response.status_code == 200
+       data = response.json()
+       assert "predicted" in data
+       assert "label" in data
+   ```
+   5. Requête :
+   ```http request
+   POST /predict
+   Content-Type: application/json
+   {"predicted": "1", "label": "label_1"}
+   ```
+   6. Assertions :
+    - response.status_code == 200 
+    - La réponse JSON contient les champs predicted et label
 
