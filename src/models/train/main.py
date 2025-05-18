@@ -60,7 +60,7 @@ lstm_proba, vgg16_proba, new_y_train = model_concatenate.predict(X_train, y_trai
 best_weights = model_concatenate.optimize(lstm_proba, vgg16_proba, new_y_train)
 print("Finished training concatenate model")
  
-with open("models/best_weights.pkl", "wb") as file:
+#with open("models/best_weights.pkl", "wb") as file:
 
 with open(best_weights_path_pkl, "wb") as file:
     pickle.dump(best_weights, file)
