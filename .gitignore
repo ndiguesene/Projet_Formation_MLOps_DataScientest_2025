@@ -17,7 +17,6 @@ data/preprocessed/*
 # =======================
 # Modèles
 # =======================
-models/*
 !models/*.h5
 !models/*.dvc
 

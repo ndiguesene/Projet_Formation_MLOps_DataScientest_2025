@@ -9,5 +9,5 @@ docker run --name api_serve_version_1 \
     --env-file .env \
     -v /Users/tiam028713/Documents/Formations/B2B_DataScientest_2025/Projet_Formation_MLOps_DataScientest_2025/models:/app/models \
     -v /Users/tiam028713/Documents/Formations/B2B_DataScientest_2025/Projet_Formation_MLOps_DataScientest_2025/logs:/app/logs \
-    -p 8001:8001 \
+    -p 8000:8000 \
     predict_app_serve:latest

@@ -8,6 +8,9 @@ WORKDIR /app
 # Set PYTHONPATH to include /app
 ENV PYTHONPATH=/app
 
+# Create the logs directory
+RUN mkdir -p /app/logs
+
 # Create the src/data directory structure : -p flag ensures that Docker creates any missing parent directories
 RUN mkdir -p src/models/serve
 
@@ -25,9 +28,9 @@ RUN python3 -m nltk.downloader punkt_tab
 COPY setup.py .
 
 # Install the package inside the container
-RUN pip3 install .
-
+RUN pip3 install -e .
+ 
 # Expose the port for FastAPI
-EXPOSE 8001
+EXPOSE 8000
 
-CMD ["uvicorn", "src.models.serve.serve_model_fastapi:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["uvicorn", "src.models.serve.serve_model_fastapi:app", "--host", "0.0.0.0", "--port", "8000"]

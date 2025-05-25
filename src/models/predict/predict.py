@@ -11,6 +11,10 @@ import pandas as pd
 import argparse
 import os
 from dotenv import load_dotenv
+import logging
+from logging.handlers import RotatingFileHandler
+from logging import Formatter, getLogger
+import time
 
 
 
@@ -68,11 +72,22 @@ class Predict:
             for i in range(len(final_predictions))
         }
 
-
-
 def main():
     # Load environment variables from .env file
     load_dotenv()
+
+    logger = logging.getLogger(__name__)
+    log_file_path=os.environ.get("TEST_MODEL_LOGGER_PATH", "../../../logs/test_model_logger.log")
+    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+    fileHandler = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=3)
+    
+    formatter = Formatter(
+        "%(asctime)s [%(levelname)s] %(message)s"
+    )
+    fileHandler.setFormatter(formatter)
+    logger.addHandler(fileHandler)
+    logger.setLevel(logging.INFO)
+
 
     # Load paths from environment variables
     tokenizer_config_path = os.environ.get("TOKENIZER_CONFIG_PATH", "../../../models/tokenizer_config.json")
@@ -116,12 +131,19 @@ def main():
         imagepath = args.images_path,
     )
 
+    logger.info("Testing the model from earlier stage of model training at ...")
+    logger.info("Prediction started at %s", time.strftime("%Y-%m-%d %H:%M:%S"))
+
     # Création de l'instance Predict et exécution de la prédiction
     predictions = predictor.predict()
 
     # Sauvegarde des prédictions
     with open(predictions_path, "w", encoding="utf-8") as json_file:
         json.dump(predictions, json_file, indent=2)
+
+    logger.info("Predictions saved to %s", predictions_path)
+    logger.info("Predictions: %s", predictions)
+    logger.info("Prediction completed successfully at %s", time.strftime("%Y-%m-%d %H:%M:%S"))
 
 
 if __name__ == "__main__":

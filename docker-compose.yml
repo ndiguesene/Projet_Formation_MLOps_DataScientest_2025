@@ -1,47 +1,82 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  # Service pour l'importation initiale des données
-  import-data:
+  data_service:
     build:
-      context: .
-      dockerfile: Dockerfile
-    image: ml-project:latest
-    container_name: ml-project-import-data
+      context: .  # Path to the directory containing the Dockerfile
+      dockerfile: ./src/data/build_data/Dockerfile
+    container_name: data_service
     volumes:
-      - ./data:/app/data
+      - ./logs:/app/logs  # Map logs directory
+      - ./data:/app/data  # Map data directory
     environment:
+      - DATA_PATH=${DATA_PATH}
+      - IMPORT_DATA_LOGGER_PATH=${IMPORT_DATA_LOGGER_PATH}
       - PYTHONUNBUFFERED=1
-    command: python src/data/build_data/import_raw_data.py
 
-  # Service pour prétraiter les données (copier de /data/raw vers /data/preprocessed)
-  files-preprocess:
+  training_service:
     build:
-      context: .
-      dockerfile: Dockerfile
-    image: ml-project:latest
-    container_name: ml-project-preprocess
-    volumes:
-      - ./data:/app/data
-    environment:
-      - PYTHONUNBUFFERED=1
-    #command: python src/data/make_dataset.py
-    command: python src/data/build_data/make_dataset.py /app/data/raw /app/data/preprocessed
+      context: . # Path to the directory containing the Dockerfile
+      dockerfile: ./src/models/train/Dockerfile
+    container_name: training_service
     depends_on:
-      - import-data
+      - data_service  # Wait for data_service to start
+    volumes:
+      - ./logs:/app/logs  # Map logs directory
+      - ./models:/app/models  # Map models directory
+      - ./data:/app/data  # Map data directory
+    environment:
+      - TRAIN_MODEL_LOGGER_PATH=${TRAIN_MODEL_LOGGER_PATH}
+      - TOKENIZER_CONFIG_PATH=${TOKENIZER_CONFIG_PATH}
+      - LSTM_MODEL_PATH=${LSTM_MODEL_PATH}
+      - VGG16_MODEL_PATH=${VGG16_MODEL_PATH}
+      - BEST_WEIGHTS_PATH_PKL=${BEST_WEIGHTS_PATH_PKL}
+      - DATA_PATH=${DATA_PATH}
+      - IMAGES_PATH=${IMAGES_PATH}
+      - CONCATENATED_MODEL_PATH=${CONCATENATED_MODEL_PATH}
+      - PYTHONUNBUFFERED=1
 
-  # Service pour l'entraînement après prétraitement
-  train:
+  testing_service:
     build:
-      context: .
-      dockerfile: Dockerfile
-    image: ml-project:latest
-    container_name: ml-project-train
-    volumes:
-      - ./data:/app/data
-      - ./models:/app/models
-    environment:
-      - PYTHONUNBUFFERED=1
-    command: python src/models/train/main.py
+      context: .  # Path to the directory containing the Dockerfile
+      dockerfile: ./src/models/predict/Dockerfile
+    container_name: testing_service
     depends_on:
-      - files-preprocess
+      - training_service  # Wait for training_service to start
+    volumes:
+      - ./logs:/app/logs  # Map logs directory
+      - ./models:/app/models  # Map models directory
+      - ./data:/app/data  # Map data directory
+    environment:
+      - TOKENIZER_CONFIG_PATH=${TOKENIZER_CONFIG_PATH}
+      - LSTM_MODEL_PATH=${LSTM_MODEL_PATH}
+      - VGG16_MODEL_PATH=${VGG16_MODEL_PATH}
+      - BEST_WEIGHTS_PATH=${BEST_WEIGHTS_PATH}
+      - MAPPER_PATH=${MAPPER_PATH}
+      - DATASET_PATH=${DATASET_PATH}
+      - IMAGES_PATH=${IMAGES_PATH}
+      - PREDICTIONS_PATH=${PREDICTIONS_PATH}
+      - TEST_MODEL_LOGGER_PATH=${TEST_MODEL_LOGGER_PATH}
+      - PYTHONUNBUFFERED=1
+
+  serving_service:
+    build:
+      context: .  # Path to the directory containing the Dockerfile
+      dockerfile: ./src/models/serve/Dockerfile
+    container_name: serving_service
+    depends_on:
+      - training_service  # Wait for training_service to start
+    ports:
+      - "8000:8000"  # Expose FastAPI service on port 8000
+    volumes:
+      - ./logs:/app/logs  # Map logs directory
+      - ./models:/app/models  # Map models directory
+    environment:
+      - SERVING_LOGGER_PATH=${SERVING_LOGGER_PATH}
+      - CONCATENATED_MODEL_PATH=${CONCATENATED_MODEL_PATH}
+      - TOKENIZER_CONFIG_PATH=${TOKENIZER_CONFIG_PATH}
+      - LSTM_MODEL_PATH=${LSTM_MODEL_PATH}
+      - VGG16_MODEL_PATH=${VGG16_MODEL_PATH}
+      - BEST_WEIGHTS_PATH=${BEST_WEIGHTS_PATH}
+      - MAPPER_PATH=${MAPPER_PATH}
+      - PYTHONUNBUFFERED=1
