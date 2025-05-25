@@ -36,7 +36,7 @@ services:
       - CONCATENATED_MODEL_PATH=${CONCATENATED_MODEL_PATH}
       - PYTHONUNBUFFERED=1
 
-  testing_service:
+  prediction_service:
     build:
       context: .  # Path to the directory containing the Dockerfile
       dockerfile: ./src/models/predict/Dockerfile
