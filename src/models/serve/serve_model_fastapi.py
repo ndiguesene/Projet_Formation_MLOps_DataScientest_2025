@@ -11,7 +11,7 @@ import io
 import tensorflow as tf
 from io import BytesIO
 from src.models.serve.predict_logic import make_prediction, preprocess_image
-from src.models.serve.security_logic import (
+from src.auth_service.security_logic import (
     authenticate_user,
     create_access_token,
     get_current_user,
@@ -30,6 +30,7 @@ from fastapi import FastAPI, Request, Form
 from slowapi.errors import RateLimitExceeded
 from fastapi.responses import JSONResponse
 from slowapi.middleware import SlowAPIMiddleware
+from auth_utils import verify_token  
 
 app = FastAPI()
 
@@ -118,24 +119,12 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Apply rate limiting to the /status endpoint
 @app.get("/status")
 @limiter.limit("5/minute")  # Allow 5 requests per minute per client
-def get_status(request: Request):
+def get_status(request: Request,  token: str = Depends(verify_token)):
+    """
+    Secured endpoint to check the status of the service.
+    Requires a valid token for access.
+    """
     return {"message": "Model Serving via FastAPI is running !"}
-
-# Securing API 3 : Token endpoint
-@app.post("/token")
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    access_token_expires = timedelta(minutes=30)
-    access_token = create_access_token(
-        data={"sub": user["username"]}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
 
 # Apply rate limiting to the /predict endpoint
 @app.post("/predict", response_model=PredictionResponse)
