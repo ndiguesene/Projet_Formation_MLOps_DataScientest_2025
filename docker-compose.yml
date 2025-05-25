@@ -3,8 +3,8 @@ version: "3.9"
 services:
   data_service:
     build:
-      context: ./src/data/build_data  # Path to the directory containing the Dockerfile
-      dockerfile: Dockerfile
+      context: .  # Path to the directory containing the Dockerfile
+      dockerfile: ./src/data/build_data/Dockerfile
     container_name: data_service
     volumes:
       - ./logs:/app/logs  # Map logs directory
@@ -12,13 +12,15 @@ services:
     environment:
       - DATA_PATH=${DATA_PATH}
       - IMPORT_DATA_LOGGER_PATH=${IMPORT_DATA_LOGGER_PATH}
-    command: ["python3", "./src/data/build_data/import_raw_data.py"]
+      - PYTHONUNBUFFERED=1
 
   training_service:
     build:
-      context: ./src/models/train  # Path to the directory containing the Dockerfile
-      dockerfile: Dockerfile
+      context: . # Path to the directory containing the Dockerfile
+      dockerfile: ./src/models/train/Dockerfile
     container_name: training_service
+    depends_on:
+      - data_service  # Wait for data_service to start
     volumes:
       - ./logs:/app/logs  # Map logs directory
       - ./models:/app/models  # Map models directory
@@ -32,13 +34,15 @@ services:
       - DATA_PATH=${DATA_PATH}
       - IMAGES_PATH=${IMAGES_PATH}
       - CONCATENATED_MODEL_PATH=${CONCATENATED_MODEL_PATH}
-    command: ["python3", "./src/models/train/train_model.py"]
+      - PYTHONUNBUFFERED=1
 
   testing_service:
     build:
-      context: ./src/models/predict  # Path to the directory containing the Dockerfile
-      dockerfile: Dockerfile
+      context: .  # Path to the directory containing the Dockerfile
+      dockerfile: ./src/models/predict/Dockerfile
     container_name: testing_service
+    depends_on:
+      - training_service  # Wait for training_service to start
     volumes:
       - ./logs:/app/logs  # Map logs directory
       - ./models:/app/models  # Map models directory
@@ -53,13 +57,15 @@ services:
       - IMAGES_PATH=${IMAGES_PATH}
       - PREDICTIONS_PATH=${PREDICTIONS_PATH}
       - TEST_MODEL_LOGGER_PATH=${TEST_MODEL_LOGGER_PATH}
-    command: ["python3", "./src/models/train/train_model.py"]
+      - PYTHONUNBUFFERED=1
 
   serving_service:
     build:
-      context: ./src/models/serve  # Path to the directory containing the Dockerfile
-      dockerfile: Dockerfile
+      context: .  # Path to the directory containing the Dockerfile
+      dockerfile: ./src/models/serve/Dockerfile
     container_name: serving_service
+    depends_on:
+      - training_service  # Wait for training_service to start
     ports:
       - "8000:8000"  # Expose FastAPI service on port 8000
     volumes:
@@ -73,4 +79,4 @@ services:
       - VGG16_MODEL_PATH=${VGG16_MODEL_PATH}
       - BEST_WEIGHTS_PATH=${BEST_WEIGHTS_PATH}
       - MAPPER_PATH=${MAPPER_PATH}
-    command: ["uvicorn", "src.models.serve.serve_model_fastapi:app", "--host", "0.0.0.0", "--port", "8000"]
+      - PYTHONUNBUFFERED=1
