@@ -42,7 +42,7 @@ services:
       dockerfile: ./src/models/predict/Dockerfile
     container_name: testing_service
     depends_on:
-      - training_service  # Wait for training_service to start
+      - training_service  # Wait for training to start
     volumes:
       - ./logs:/app/logs  # Map logs directory
       - ./models:/app/models  # Map models directory
@@ -59,13 +59,28 @@ services:
       - TEST_MODEL_LOGGER_PATH=${TEST_MODEL_LOGGER_PATH}
       - PYTHONUNBUFFERED=1
 
+   auth_service:
+    build:
+      context: .  # Path to the directory containing the Dockerfile for auth_service
+      dockerfile: ./src/auth_service/Dockerfile
+    container_name: auth_service
+    ports:
+      - "8011:8011"  # Expose port 8011 for the authentication service
+    environment:
+      - SECRET_KEY=${SECRET_KEY}  # Secret key for JWT
+      - ALGORITHM=${ALGORITHM}    # Algorithm for JWT
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}  # Token expiration
+      - AUTH_SERVICE_LOGGER_PATH=${AUTH_SERVICE_LOGGER_PATH}  # Logger path for auth_service
+    volumes:
+      - ./logs:/app/logs  # Map logs directory for auth_service
+
   serving_service:
     build:
       context: .  # Path to the directory containing the Dockerfile
       dockerfile: ./src/models/serve/Dockerfile
     container_name: serving_service
     depends_on:
-      - training_service  # Wait for training_service to start
+      - auth_service  # Wait for authentication to start
     ports:
       - "8000:8000"  # Expose FastAPI service on port 8000
     volumes:

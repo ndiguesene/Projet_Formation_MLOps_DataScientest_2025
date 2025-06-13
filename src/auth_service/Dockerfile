@@ -25,6 +25,6 @@ COPY setup.py .
 RUN pip3 install -e .
 
 # Expose the port for FastAPI
-EXPOSE 8001
+EXPOSE 8011
 
 CMD ["uvicorn", "src.auth_service.main:app", "--host", "0.0.0.0", "--port", "8011"]

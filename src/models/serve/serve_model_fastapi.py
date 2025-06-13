@@ -11,11 +11,7 @@ import io
 import tensorflow as tf
 from io import BytesIO
 from src.models.serve.predict_logic import make_prediction, preprocess_image
-from src.auth_service.security_logic import (
-    authenticate_user,
-    create_access_token,
-    get_current_user,
-)
+from src.models.serve.auth_utils import verify_token, get_token
 from datetime import timedelta
 import logging
 from logging.handlers import RotatingFileHandler
@@ -30,7 +26,6 @@ from fastapi import FastAPI, Request, Form
 from slowapi.errors import RateLimitExceeded
 from fastapi.responses import JSONResponse
 from slowapi.middleware import SlowAPIMiddleware
-from auth_utils import verify_token  
 
 app = FastAPI()
 
@@ -119,12 +114,19 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Apply rate limiting to the /status endpoint
 @app.get("/status")
 @limiter.limit("5/minute")  # Allow 5 requests per minute per client
-def get_status(request: Request,  token: str = Depends(verify_token)):
+def get_status(request: Request):
     """
     Secured endpoint to check the status of the service.
     Requires a valid token for access.
     """
     return {"message": "Model Serving via FastAPI is running !"}
+
+# Securing API 3 : Token endpoint
+@app.post("/token")
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    token = get_token(form_data.username, form_data.password)
+    return token
+
 
 # Apply rate limiting to the /predict endpoint
 @app.post("/predict", response_model=PredictionResponse)
@@ -137,9 +139,10 @@ async def predict_code(
     product_id: str = Form (...), # An unique ID for the product.
     imageid: str = Form (...), # An unique ID for the image associated with the product.
     image: UploadFile = File(...),  # Receive image as file
-    current_user: dict = Depends(get_current_user),  # Secure the endpoint
+    token: str = Depends(verify_token),  # Secure the endpoint using the token
 ):
-    
+     
+    current_user: dict = token # Secure the endpoint
      # Log the authenticated user
     logger.info(f"Prediction requested by user: {current_user['username']}")
     
@@ -178,6 +181,7 @@ async def log_requests(request: Request, call_next):
     logger.info(f"Request ID={request_id} - Start request: {request.method} {request.url}")
     
     # Record the start time
+
     start_time = time.time()
     
     # Process the request

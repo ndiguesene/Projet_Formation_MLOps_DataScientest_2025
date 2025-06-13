@@ -13,9 +13,9 @@ import bcrypt
 load_dotenv()
 
 # Secret key and algorithm
-SECRET_KEY = os.getenv("SERVING_SECRET_KEY", "i_am_hidden_somewhere")
-ALGORITHM = os.getenv("SERVING_ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("SERVING_ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+SECRET_KEY = os.getenv("SECRET_KEY", "i_am_hidden_somewhere")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 
 # Password hashing context
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

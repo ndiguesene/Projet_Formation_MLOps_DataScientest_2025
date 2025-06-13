@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from security_logic import authenticate_user, create_access_token, get_current_user
+from pydantic import BaseModel
 
 app = FastAPI()
 
