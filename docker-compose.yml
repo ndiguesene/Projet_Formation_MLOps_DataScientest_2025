@@ -1,26 +1,24 @@
 version: "3.9"
-
 services:
   data_service:
     build:
-      context: .  # Path to the directory containing the Dockerfile
+      context: . # Path to the directory containing the Dockerfile
       dockerfile: ./src/data/build_data/Dockerfile
     container_name: data_service
     volumes:
-      - ./logs:/app/logs  # Map logs directory
-      - ./data:/app/data  # Map data directory
+      - ./logs:/app/logs # Map logs directory
+      - ./data:/app/data # Map data directory
     environment:
       - DATA_PATH=${DATA_PATH}
       - IMPORT_DATA_LOGGER_PATH=${IMPORT_DATA_LOGGER_PATH}
       - PYTHONUNBUFFERED=1
-
   training_service:
     build:
       context: . # Path to the directory containing the Dockerfile
       dockerfile: ./src/models/train/Dockerfile
     container_name: training_service
     depends_on:
-      - data_service  # Wait for data_service to start
+      - data_service # Wait for data_service to start
     volumes:
       - ./logs:/app/logs  # Map logs directory
       - ./models:/app/models  # Map models directory
@@ -35,16 +33,15 @@ services:
       - IMAGES_PATH=${IMAGES_PATH}
       - CONCATENATED_MODEL_PATH=${CONCATENATED_MODEL_PATH}
       - PYTHONUNBUFFERED=1
-
   prediction_service:
     build:
-      context: .  # Path to the directory containing the Dockerfile
+      context: . # Path to the directory containing the Dockerfile
       dockerfile: ./src/models/predict/Dockerfile
-    container_name: testing_service
+    container_name: prediction_service
     depends_on:
-      - training_service  # Wait for training to start
+      - training_service # Wait for training to start
     volumes:
-      - ./logs:/app/logs  # Map logs directory
+      - ./logs:/app/logs # Map logs directory
       - ./models:/app/models  # Map models directory
       - ./data:/app/data  # Map data directory
     environment:
@@ -58,8 +55,7 @@ services:
       - PREDICTIONS_PATH=${PREDICTIONS_PATH}
       - TEST_MODEL_LOGGER_PATH=${TEST_MODEL_LOGGER_PATH}
       - PYTHONUNBUFFERED=1
-
-   auth_service:
+  auth_service:
     build:
       context: .  # Path to the directory containing the Dockerfile for auth_service
       dockerfile: ./src/auth_service/Dockerfile
@@ -73,7 +69,6 @@ services:
       - AUTH_SERVICE_LOGGER_PATH=${AUTH_SERVICE_LOGGER_PATH}  # Logger path for auth_service
     volumes:
       - ./logs:/app/logs  # Map logs directory for auth_service
-
   serving_service:
     build:
       context: .  # Path to the directory containing the Dockerfile

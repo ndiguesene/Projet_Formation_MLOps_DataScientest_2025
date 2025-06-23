@@ -8,18 +8,10 @@ from nltk.stem import WordNetLemmatizer
 import pickle
 import math
 
-import os
-from dotenv import load_dotenv
-
-  # Load environment variables from .env file
-load_dotenv()
-
-# Load paths from environment variables
-mapper_path_pkl = os.environ.get("MAPPER_PATH_PKL", "../../../models/mapper.pkl")
-
 class DataImporter:
-    def __init__(self, filepath="data/raw"):
+    def __init__(self, filepath="data/raw", mapper_path=""):
         self.filepath = filepath
+        self.mapper_path = mapper_path
 
     def load_data(self):
         data = pd.read_csv(f"{self.filepath}/X_train_update.csv")
@@ -33,7 +25,7 @@ class DataImporter:
         }
         target["prdtypecode"] = target["prdtypecode"].replace(modalite_mapping)
 
-        with open(mapper_path_pkl, "wb") as fichier:
+        with open(self.mapper_path, "wb") as fichier:
             pickle.dump(modalite_mapping, fichier)
 
         df = pd.concat([data, target], axis=1)

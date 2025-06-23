@@ -14,6 +14,7 @@ load_dotenv()
 tokenizer_config_path = os.environ.get("TOKENIZER_CONFIG_PATH", "../../../models/tokenizer_config.json")
 lstm_model_path = os.environ.get("LSTM_MODEL_PATH", "../../../models/best_lstm_model.h5")
 vgg16_model_path = os.environ.get("VGG16_MODEL_PATH", "../../../models/best_vgg16_model.h5")
+mapper_path_pkl = os.environ.get("MAPPER_PATH_PKL", "mapper.pkl")
 best_weights_path_pkl = os.environ.get("BEST_WEIGHTS_PATH_PKL", "../../../models/best_weights.pkl")
 data_path = os.environ.get("DATA_PATH", "../../../data/raw")
 images_path = os.environ.get("IMAGES_PATH", "../../../data/raw/image_train")
@@ -32,7 +33,7 @@ logger.addHandler(fileHandler)
 logger.setLevel(logging.INFO)
 
 
-data_importer = DataImporter(filepath=data_path)
+data_importer = DataImporter(filepath=data_path, mapper_path=mapper_path_pkl)
 df = data_importer.load_data()
 X_train, X_val, _, y_train, y_val, _ = data_importer.split_train_test(df)
  

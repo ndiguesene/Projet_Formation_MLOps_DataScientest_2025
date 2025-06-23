@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
-from security_logic import authenticate_user, create_access_token, get_current_user
+from src.auth_service.security_logic import authenticate_user, create_access_token, get_current_user
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -12,7 +12,10 @@ class TokenRequest(BaseModel):
 
 # Securing API 3 : Token endpoint
 @app.post("/token")
-async def login_for_access_token(username: str, password: str):
+async def login_for_access_token(
+    username: str = Form(...),
+    password: str = Form(...)
+    ):
     """
     Endpoint to authenticate a user and return a JWT token.
     """
