@@ -17,8 +17,8 @@ services:
       context: . # Path to the directory containing the Dockerfile
       dockerfile: ./src/models/train/Dockerfile
     container_name: training_service
-    depends_on:
-      - data_service # Wait for data_service to start
+    #depends_on:
+    #  - data_service # Wait for data_service to start
     volumes:
       - ./logs:/app/logs  # Map logs directory
       - ./models:/app/models  # Map models directory
@@ -44,8 +44,8 @@ services:
       context: . # Path to the directory containing the Dockerfile
       dockerfile: ./src/models/predict/Dockerfile
     container_name: prediction_service
-    depends_on:
-      - training_service # Wait for training to start
+    #depends_on:
+    #  - training_service # Wait for training to start
     volumes:
       - ./logs:/app/logs # Map logs directory
       - ./models:/app/models  # Map models directory
@@ -80,8 +80,8 @@ services:
       context: .  # Path to the directory containing the Dockerfile
       dockerfile: ./src/models/serve/Dockerfile
     container_name: serving_service
-    depends_on:
-      - auth_service  # Wait for authentication to start
+    #depends_on:
+    #  - auth_service  # Wait for authentication to start
     ports:
       - "8000:8000"  # Expose FastAPI service on port 8000
     volumes:
