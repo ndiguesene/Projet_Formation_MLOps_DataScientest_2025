@@ -1,6 +1,6 @@
 FROM python:3.10-slim
   
-RUN apt-get update && apt-get install python3-pip -y python3-dev
+RUN apt-get update && apt-get install python3-pip -y python3-dev && apt-get install -y git
 
 # Set the working directory
 WORKDIR /app

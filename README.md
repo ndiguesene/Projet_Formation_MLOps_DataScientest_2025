@@ -212,7 +212,7 @@ La limite de 10 requêtes par minutes sur /predict est appliquée.
 Un gestionnaire d'exception global pour RateLimitExceeded garantit que les utilisateurs reçoivent un message d'erreur clair lorsque les limites sont dépassées.
 
 ##### Authentification et authorisation
-Vous avez mis en œuvre OAuth2 avec JWT pour sécuriser les points de terminaison. Les clés d'authenication sont tous sauvegardés comme variables d'environnement.
+Nous avons mis en œuvre OAuth2 avec JWT pour sécuriser les points de terminaison. Les clés d'authenication sont tous sauvegardés comme variables d'environnement.
 Le point de terminaison `/token` génère des jetons d'accès, et la dépendance `get_current_user` garantit que seuls les utilisateurs authentifiés peuvent accéder aux points de terminaison protégés comme `/predict`.
 La protection des points de terminaison sensibles comme `/predict` garantit que seuls les utilisateurs autorisés peuvent accéder à vos modèles. 
 La logique de sécurité est séparée dans security_logic.py, ce qui rend la base de code plus modulaire et réutilisable.
@@ -475,4 +475,51 @@ Chaque test utilise un TestClient pour simuler des requêtes HTTP vers l’appli
    6. Assertions :
     - response.status_code == 200 
     - La réponse JSON contient les champs predicted et label
+
+---
+## Automatisation DVC/DgasHub/MLFlow (à mettre à jour par Awa TIAM)
+Note : à partir de là, tout se fait via les conteneurs Docker. Donc, il faut obligatoirement disposer d'un fichier .env à la racine du projet. Exemple de contenu .env partagé via Teams.
+#### Créer un fichier .env (ne pas oublier de mettre à jour les infos dagshub (token))
+```bash
+touch .env
+
+```
+
+#### Données nécessaires : fichiers artefacts non dispoinibles sur Git
+Les fichiers .h5, .json, .pkl (best_lstm_model, best_vgg16, best_weights, mapper, tokenizer) doivent être disponibles dans le dossier `models`.
+Ils ont utilisé dans l'entraînement des modèles.
+Ces fichiers sont partagés via Teams.
+
+#### Exécuter la pipeline sans Airflow
+
+```bash
+docker compose up
+
+```
+
+!! Le fichier à la racine `run_compose_options.sh` contient des examples de commandes pour exécuter chaque service en particulier.
+
+#### Exécuter la pipeline via Airflow
+
+##### Mettre à jour le fichier sous airflow/dags/initialize_airflow.sh et exécuter le fichier
+
+```bash
+export AIRFLOW_HOME=`répertoire absolu du projet`/airflow  
+airflow db migrate
+
+# Start Airflow in standalone mode (creates an admin user automatically, crdentials are saved /Users/tiam028713/airflow/simple_auth_manager_passwords.json.generated )
+airflow standalone
+
+```
+
+
+##### Co
+
+# Start Airflow in standalone mode (creates an admin user automatically, crdentials are saved /Users/tiam028713/airflow/simple_auth_manager_passwords.json.generated )
+airflow standalone
+
+#### Ports ouverts
+
+Le service d'authentification est ouvert sur le port 8011:8011
+Le service d'API est ouvert sur le port 8000:8000
 

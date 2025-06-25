@@ -8,17 +8,28 @@ from dotenv import load_dotenv
 import logging
 from logging.handlers import RotatingFileHandler
 from logging import Formatter, getLogger
+import dagshub
+import mlflow
+from datetime import datetime
 
 load_dotenv()
 # Load paths from environment variables
 tokenizer_config_path = os.environ.get("TOKENIZER_CONFIG_PATH", "../../../models/tokenizer_config.json")
 lstm_model_path = os.environ.get("LSTM_MODEL_PATH", "../../../models/best_lstm_model.h5")
 vgg16_model_path = os.environ.get("VGG16_MODEL_PATH", "../../../models/best_vgg16_model.h5")
+mapper_path_pkl = os.environ.get("MAPPER_PATH_PKL", "mapper.pkl")
 best_weights_path_pkl = os.environ.get("BEST_WEIGHTS_PATH_PKL", "../../../models/best_weights.pkl")
 data_path = os.environ.get("DATA_PATH", "../../../data/raw")
 images_path = os.environ.get("IMAGES_PATH", "../../../data/raw/image_train")
 CONCATENATED_MODEL_PATH = os.environ.get("CONCATENATED_MODEL_PATH", "../../../models/concatenate.h5")
+mlflow_tracking_uri = os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000")
+MLFLOW_EXPERIMENT_NAME = os.getenv("MLFLOW_EXPERIMENT_NAME")
+BEST_WEIGHTS_PATH = os.getenv("BEST_WEIGHTS_PATH", "../../../models/best_weights.json")
+MAPPER_PATH = os.getenv("MAPPER_PATH", "../../../models/mapper.pkl")
+DAGSHUB_USERNAME = os.getenv("DAGSHUB_USERNAME")
+DAGSHUB_TOKEN = os.getenv("DAGSHUB_TOKEN")
 
+# Configure logging
 logger = logging.getLogger(__name__)
 log_file_path=os.environ.get("TRAIN_MODEL_LOGGER_PATH", "../../../logs/train_model_logger.log")
 os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
@@ -31,8 +42,15 @@ fileHandler.setFormatter(formatter)
 logger.addHandler(fileHandler)
 logger.setLevel(logging.INFO)
 
+#login(DAGSHUB_USERNAME, DAGSHUB_TOKEN)
+dagshub_username = os.environ.get("DAGSHUB_USERNAME")
+dagshub_token = os.environ.get("DAGSHUB_TOKEN")
+mlflow.set_tracking_uri(f"https://{dagshub_username}:{dagshub_token}@dagshub.com/mariamanadia/Projet_Formation_MLOps_DataScientest_2025.mlflow")
+#dagshub.init(repo_owner='mariamanadia', repo_name='Projet_Formation_MLOps_DataScientest_2025', mlflow=True)
+# Set the MLflow tracking URI
+mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
 
-data_importer = DataImporter(filepath=data_path)
+data_importer = DataImporter(filepath=data_path, mapper_path=mapper_path_pkl)
 df = data_importer.load_data()
 X_train, X_val, _, y_train, y_val, _ = data_importer.split_train_test(df)
  
@@ -87,3 +105,26 @@ concatenate_model = keras.models.Model(
 # Enregistrer le modèle au format h5
 concatenate_model.save(CONCATENATED_MODEL_PATH)
 logger.info("Finished saving concatenate model")
+
+# Log the model with MLflow
+run_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+with mlflow.start_run(run_name="Train_Concatenate_Model") as run:
+  mlflow.set_tag("source", "airflow")
+  mlflow.set_tag("version", run_time)
+  mlflow.set_tag("model_type", "VGG16+LSTM")
+  #mlflow.log_param('parameter name', 'value')
+  #mlflow.log_metric('metric name', 1)
+
+  # Log des artefacts
+  mlflow.log_artifact(tokenizer_config_path)
+  mlflow.log_artifact(mapper_path_pkl)
+  mlflow.log_artifact( best_weights_path_pkl)
+  mlflow.log_artifact(BEST_WEIGHTS_PATH)
+  mlflow.log_artifact(MAPPER_PATH)
+
+  # Log the models
+  mlflow.keras.log_model(lstm, "lstm_model")
+  mlflow.keras.log_model(vgg16, "vgg16_model")
+  mlflow.keras.log_model(concatenate_model, "concatenate_model")
+
+
