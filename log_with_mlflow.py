@@ -3,6 +3,7 @@ import mlflow
 import mlflow.keras
 from tensorflow.keras.models import load_model
 
+# -*- Not used
 # -------------------------------------------
 # 1. Initialisation de DagsHub avec MLflow
 # -------------------------------------------

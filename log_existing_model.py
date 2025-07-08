@@ -3,6 +3,8 @@ import mlflow.keras
 from tensorflow.keras.models import load_model
 import dagshub
 
+# -*- Not used
+
 # Initialiser DagsHub (si nécessaire, assurez-vous que vous avez un compte et un repo DagsHub)
 dagshub.init(repo_owner='mariamanadia', repo_name='Projet_Formation_MLOps_DataScientest_2025', mlflow=True)
 

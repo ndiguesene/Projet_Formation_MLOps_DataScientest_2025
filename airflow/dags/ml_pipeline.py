@@ -13,8 +13,8 @@ with DAG(
         task_id="fetch_data",
         bash_command="""
 
-          cd /Users/tiam028713/Documents/Formations/Projet_2025_MLOps/Projet_Formation_MLOps_DataScientest_2025/ && \
-          docker compose run --rm data_service
+          #cd /Users/tiam028713/Documents/Formations/Projet_2025_MLOps/Projet_Formation_MLOps_DataScientest_2025/ && \
+          #docker compose run --rm data_service
 
         """
     )
@@ -23,11 +23,12 @@ with DAG(
         task_id="train_model",
         bash_command="""
 
-        cd /Users/tiam028713/Documents/Formations/Projet_2025_MLOps/Projet_Formation_MLOps_DataScientest_2025/ && \
+        #cd /Users/tiam028713/Documents/Formations/Projet_2025_MLOps/Projet_Formation_MLOps_DataScientest_2025/ && \
         docker compose run --rm training_service && \
         
         # Versionner les artefacts produits
         dvc add models/*.h5 && \
+        
         dvc add models/*.pkl && \
         dvc add models/*.json && \
 
@@ -38,7 +39,7 @@ with DAG(
         """
     )
 
-    # créer un bashoperator avec des arguments pour pousser les données et qui contiendra 
+    # créer un bashoperator avec des arguments pour pousser les données et qui contiendra
 
     run_prediction = BashOperator(
         task_id="predict_model",
