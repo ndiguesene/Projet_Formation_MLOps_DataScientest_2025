@@ -11,12 +11,12 @@
 # =======================
 data/raw/image_test
 data/raw/image_train
-#data/raw/images_low.zip
-#data/raw/X_test_update.csv
-#data/raw/X_train_update.csv
-#data/raw/Y_train_CVw08PX.csv
-#data/predictions/predictions.json
-#data/preprocessed/*
+data/raw/images_low.zip
+data/raw/X_test_update.csv
+data/raw/X_train_update.csv
+data/raw/Y_train_CVw08PX.csv
+data/predictions/predictions.json
+data/preprocessed/*
 
 # =======================
 # Modèles
