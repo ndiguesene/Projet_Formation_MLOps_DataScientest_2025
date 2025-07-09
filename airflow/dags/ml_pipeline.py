@@ -14,7 +14,7 @@ with DAG(
         bash_command="""
 
           #cd /Users/tiam028713/Documents/Formations/Projet_2025_MLOps/Projet_Formation_MLOps_DataScientest_2025/ && \
-          #docker compose run --rm data_service
+          docker compose run --rm data_service
 
         """
     )
@@ -65,4 +65,5 @@ with DAG(
     #    """
     #)
 
-    fetch_data >> train_model >> run_prediction >> start_auth >> start_serving
+    fetch_data
+    # >> train_model >> run_prediction >> start_auth >> start_serving
