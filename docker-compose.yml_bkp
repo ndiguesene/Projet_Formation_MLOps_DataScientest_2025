@@ -261,7 +261,7 @@ services:
     command:
       - bash
       - -c
-      - airflow dags list
+      - airflow
     depends_on:
       <<: *airflow-common-depends-on
 
@@ -286,6 +286,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+  # on rajoutera ici nos services spécifiques ???
+
   data_service:
     build:
       context: . # Path to the directory containing the Dockerfile

@@ -10,6 +10,8 @@ def log_model_to_mlflow(model_path, run_name="LSTM_Model_Run"):
     Args:
     - model_path: Chemin vers le modèle Keras à charger
     - run_name: Nom de l'exécution MLflow (facultatif)
+
+    Note : Not used
     """
     
     # Charger le modèle

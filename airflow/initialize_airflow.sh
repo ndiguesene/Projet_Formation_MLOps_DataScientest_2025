@@ -1,3 +1,5 @@
+# -*- ne pas utiliser sauf si on lance en mode standalone -*-
+
 export AIRFLOW_HOME=/Users/tiam028713/Documents/Formations/Projet_2025_MLOps/Projet_Formation_MLOps_DataScientest_2025/airflow  
 airflow db migrate
 
