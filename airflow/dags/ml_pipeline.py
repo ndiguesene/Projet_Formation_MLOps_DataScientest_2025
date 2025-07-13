@@ -24,6 +24,7 @@ with DAG(
 
         """
     )
+
     # -*- we are creating the actual container to fetch data from the remote server and store it in the local filesystem -*-. Note: The DockerOperator is used to run the container that fetches data.
     fetch_data = DockerOperator(
         task_id="fetch_data",
@@ -58,17 +59,46 @@ with DAG(
         """
     )
 
-
-    train_model = BashOperator(
-        task_id="train_model",
+    # -*- we are training the model using the training service container -*-. Note: The DockerOperator is used to run the container that trains the model.
+    create_model_training_image = BashOperator(
+        task_id="create_model_training_image",
         bash_command="""
-
+        
         cd /opt/airflow/mlops-project && \
-        docker compose run --rm training_service && \
+        docker build -f ./src/models/train/Dockerfile -t training_service .
 
         """
     )
+    # -*- we are creating the actual container to train the model -*-. Note: The DockerOperator is used to run the container that trains the model.
+    # -*- under the hood, the trained model and his artifacts are pushed to MLflow in Dagshub remote storage -*-.
+    train_model = DockerOperator(
+        task_id="train_model",
+        image="training_service",
+        container_name="training_service_container",
+        api_version="auto",
+        environment={
+            "DATA_PATH": os.getenv("DATA_PATH"),
+            "PYTHONUNBUFFERED": "1",
+            "TRAIN_MODEL_LOGGER_PATH": os.getenv("TRAIN_MODEL_LOGGER_PATH"),
+            "TOKENIZER_CONFIG_PATH": os.getenv("TOKENIZER_CONFIG_PATH"),
+            "LSTM_MODEL_PATH" : os.getenv("LSTM_MODEL_PATH"),
+            "VGG16_MODEL_PATH" : os.getenv("VGG16_MODEL_PATH"),
+            "BEST_WEIGHTS_PATH_PKL" : os.getenv("BEST_WEIGHTS_PATH_PKL"),
+            "DATA_PATH" : os.getenv("DATA_PATH"),
+            "IMAGES_PATH":os.getenv("IMAGES_PATH"),
+            "CONCATENATED_MODEL_PATH": os.getenv("CONCATENATED_MODEL_PATH"),
+            "MAPPER_PATH": os.getenv("MAPPER_PATH"),
+            "BEST_WEIGHTS_PATH" : os.getenv("BEST_WEIGHTS_PATH"),
+            "MLFLOW_TRACKING_URI" : os.getenv("MLFLOW_TRACKING_URI"),
+            "MLFLOW_EXPERIMENT_NAME": os.getenv("MLFLOW_EXPERIMENT_NAME"),
+            "DAGSHUB_USERNAME":os.getenv("DAGSHUB_USERNAME"),
+            "DAGSHUB_TOKEN":os.getenv("DAGSHUB_TOKEN"),
+            "PYTHONUNBUFFERED": 1
+        },
+        docker_url="unix://var/run/docker.sock"
+    )
 
+    # -*- we are pushing the model artifacts to DVC remote -*-. Note: The BashOperator is used to run the commands that push the model artifacts to DVC remote.
     push_model_artifacts = BashOperator(
         task_id="push_model_artifacts",
         bash_command="""
@@ -88,31 +118,109 @@ with DAG(
         """
     )
 
-    # créer un bashoperator avec des arguments pour pousser les données et qui contiendra
+    # -*- we are creating the image to run a test on the model -*-. Note: The BashOperator is used to run the commands that build the image for the prediction service.
+    create_prediction_image = BashOperator(
+        task_id="create_model_test_image",
+        bash_command="""
 
-    run_prediction = BashOperator(
-        task_id="predict_model",
-        bash_command="docker compose run --rm prediction_service && dvc add data/predictions/predictions.json && git add data/predictions/predictions.json.dvc && dvc push"
+        cd /opt/airflow/mlops-project && \
+        docker build -f ./src/models/predict/Dockerfile -t prediction_service .
+
+        """
+   )
+    # -*- we are creating the actual container to run a test on the model -*-. Note: The DockerOperator is used to run the container that makes predictions.
+    run_prediction = DockerOperator(
+        task_id="run_prediction",
+        image="prediction_service",
+        container_name="prediction_service_container",
+        api_version="auto",
+        environment={
+            "TOKENIZER_CONFIG_PATH": os.getenv("TOKENIZER_CONFIG_PATH"),
+            "LSTM_MODEL_PATH": os.getenv("LSTM_MODEL_PATH"),
+            "VGG16_MODEL_PATH": os.getenv("VGG16_MODEL_PATH"),
+            "BEST_WEIGHTS_PATH": os.getenv("BEST_WEIGHTS_PATH"),
+            "MAPPER_PATH": os.getenv("MAPPER_PATH"),
+            "DATASET_PATH": os.getenv("DATASET_PATH"),
+            "IMAGES_PATH": os.getenv("IMAGES_PATH"),
+            "PREDICTIONS_PATH": os.getenv("PREDICTIONS_PATH"),
+            "TEST_MODEL_LOGGER_PATH": os.getenv("TEST_MODEL_LOGGER_PATH"),
+            "PYTHONUNBUFFERED": 1
+        },
+        docker_url="unix://var/run/docker.sock"
+    )
+    
+    # -*- we are pushing the test results to DVC remote -*-. Note: The BashOperator is used to run the commands that push the model artifacts to DVC remote.
+    push_prediction_results = BashOperator(
+        task_id="push_prediction_results",
+        bash_command="""
+
+        cd /opt/airflow/mlops-project && \
+        
+        # Versionner les artefacts produits
+        dvc add data/predictions/predictions.json && \
+
+        # Pousser vers DVC remote
+        git add data/predictions/predictions.json && \
+        dvc push
+
+        """
     )
 
-    start_auth = BashOperator(
-        task_id="auth_service_up",
-        bash_command="docker compose up -d auth_service"
+     # -*- we are creating the image to run an authentication image -*-. Note: The BashOperator is used to run the commands that build the image.
+    create_auth_image = BashOperator(
+        task_id="create_auth_image",
+        bash_command="""
+
+        cd /opt/airflow/mlops-project && \
+        docker build -f ./src/auth_service/Dockerfile -t auth_service .
+
+        """
+   )
+    
+    # -*- we are creating the actual container to run a test on the model -*-. Note: The DockerOperator is used to run the container that makes predictions.
+    start_auth = DockerOperator(
+        task_id="start_auth",
+        image="auth_service",
+        container_name="auth_service_container",
+        api_version="auto",
+        environment={
+            "SECRET_KEY": os.getenv("SECRET_KEY"),  # Secret key for JWT
+            "ALGORITHM": os.getenv("ALGORITHM"),    # Algorithm for JWT
+            "ACCESS_TOKEN_EXPIRE_MINUTES": os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"),  # Token expiration
+            "AUTH_SERVICE_LOGGER_PATH": os.getenv("AUTH_SERVICE_LOGGER_PATH"),  # Logger path for auth_service
+            "PYTHONUNBUFFERED": 1
+        },
+        docker_url="unix://var/run/docker.sock"
     )
 
-    start_serving = BashOperator(
-        task_id="serving_service_up",
-        bash_command="docker compose up -d serving_service"
+    # -*- we are creating the image to run an authentication image -*-. Note: The BashOperator is used to run the commands that build the image.
+    create_serving_image = BashOperator(
+        task_id="create_serving_image",
+        bash_command="""
+
+        cd /opt/airflow/mlops-project && \
+        docker build -f ./src/auth_service/Dockerfile -t serving_service .
+
+        """
+   )
+    
+    # -*- we are creating the actual container to run a test on the model -*-. Note: The DockerOperator is used to run the container that makes predictions.
+    start_serving_service = DockerOperator(
+        task_id="start_serving_service",
+        image="serving_service",
+        container_name="serving_service_container",
+        api_version="auto",
+        environment={
+            "SERVING_LOGGER_PATH": os.getenv("SERVING_LOGGER_PATH"),  
+            "CONCATENATED_MODEL_PATH": os.getenv("CONCATENATED_MODEL_PATH"),    
+            "TOKENIZER_CONFIG_PATH": os.getenv("TOKENIZER_CONFIG_PATH"), 
+            "LSTM_MODEL_PATH": os.getenv("LSTM_MODEL_PATH"),
+            "VGG16_MODEL_PATH": os.getenv("VGG16_MODEL_PATH"),
+            "BEST_WEIGHTS_PATH": os.getenv("BEST_WEIGHTS_PATH"),
+            "MAPPER_PATH": os.getenv("MAPPER_PATH"),
+            "PYTHONUNBUFFERED": 1
+        },
+        docker_url="unix://var/run/docker.sock"
     )
 
-    #push_to_git = BashOperator(
-    #    task_id="push_to_git",
-    #    bash_command="""
-    #      git commit -m "Update model/artifacts and input data from Airflow run"
-    #      git commit -m "Update DVC tracked files"
-    #      git push origin main
-    #    """
-    #)
-
-    build_image_fetch_data >> fetch_data >> push_input_data
-    # >> train_model >> run_prediction >> start_auth >> start_serving
+    build_image_fetch_data >> fetch_data >> push_input_data >> create_model_training_image >> train_model >> push_model_artifacts >> create_prediction_image >> run_prediction >> push_prediction_results >> create_auth_image >> start_auth >> create_serving_image >> start_serving_service
