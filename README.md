@@ -523,3 +523,65 @@ airflow standalone
 Le service d'authentification est ouvert sur le port 8011:8011
 Le service d'API est ouvert sur le port 8000:8000
 
+
+
+
+###  Intégration de Prometheus
+
+## Installation de Prometheus.
+
+Ajout de la configuration dans prometheus.yml avec les targets suivantes :
+``` bash
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"] # Prometheus lui-même
+
+  - job_name: "fastapi"
+    static_configs:
+      - targets: ["localhost:8000"] # FastAPI (exposition des métriques applicatives).
+
+  - job_name: "node"
+    static_configs:
+      - targets: ["localhost:9100"] # Node Exporter (monitoring système)
+```
+## Lancer prometheus
+``` bash
+cd monitoring
+prometheus --config.file=prometheuss.yml
+```
+->>>>> Lancement réussi de Prometheus sans conflit de port.
+
+
+## Exposition des métriques FastAPI
+
+# Installation de prometheus-fastapi-instrumentator.
+
+Ajout de l’instrumentation dans l’application FastAPI :
+``` bash
+from prometheus_fastapi_instrumentator import Instrumentator
+Instrumentator().instrument(app).expose(app)
+```
+Ajout de l’endpoint /metrics visible et scrappé avec succès.
+
+### Node Exporter
+
+# Installation et exécution de node_exporter.
+
+# Intégration comme target dans Prometheus.
+
+# Collecte des métriques système OK (CPU, RAM,...).
+
+### Validation via Prometheus UI
+
+Tous les endpoints sont UP dans l’onglet Targets.
+![alt text](image.png)
+![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
+
+
+Visualisation des métriques dans Graph, par ex :
+
+http_requests_total{job="fastapi", handler="/metrics"} = 4
