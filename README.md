@@ -524,64 +524,117 @@ Le service d'authentification est ouvert sur le port 8011:8011
 Le service d'API est ouvert sur le port 8000:8000
 
 
+###  Monitoring
 
+Intègrer un système de monitoring complet basé sur **Prometheus** et **Node Exporter**, avec exposition des métriques de l'application **FastAPI**.
 
-###  Intégration de Prometheus
+## 1.  Installation des dépendances
 
-## Installation de Prometheus.
+Ajout de la dépendance Prometheus dans le fichier `requirements.txt` :
 
-Ajout de la configuration dans prometheus.yml avec les targets suivantes :
-``` bash
+```
+prometheus-fastapi-instrumentator
+```
+
+Installation avec pip :
+
+```bash
+pip install prometheus-fastapi-instrumentator
+```
+
+## 2.  Modification du code FastAPI
+
+Ajout de l’instrumentation Prometheus dans le fichier `src.models.serve.serve_model_fastapi.py` :
+
+```python
+from prometheus_fastapi_instrumentator import Instrumentator
+
+# Ajout après la création de l'application FastAPI
+app = FastAPI()
+
+# Instrumentation Prometheus
+Instrumentator().instrument(app).expose(app)
+
+```
+## 3. Configuration prometheus.yml
 global:
   scrape_interval: 15s
 
 scrape_configs:
   - job_name: "prometheus"
     static_configs:
-      - targets: ["localhost:9090"] # Prometheus lui-même
+      - targets: ["localhost:9090"]
 
   - job_name: "fastapi"
     static_configs:
-      - targets: ["localhost:8000"] # FastAPI (exposition des métriques applicatives).
+      - targets: ["localhost:8000"]
 
   - job_name: "node"
     static_configs:
-      - targets: ["localhost:9100"] # Node Exporter (monitoring système)
+      - targets: ["localhost:9100"]
+
+
+## 4.  Lancement de l’API , Prometheus et node exporter
+
+```bash
+uvicorn src.models.serve.serve_model_fastapi:app --reload
 ```
-## Lancer prometheus
+
+```bash
+prometheus --config.file=prometheus.yml
+```
+
+```bash
+cd node_exporter-1.8.1.linux-amd64
+./node_exporter &
+```
+
+## 5.  Vérification de l’endpoint /metrics , prometheus, node exporter
+
+Ouvrir dans le navigateur ou via curl :
+
+```bash
+http://localhost:8000/metrics
+
+```
+- > ![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
+
+```bash
+//http://localhost:9090
+
+```
+- > ![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
+
+```bash
+http://http://localhost:9100
+```
+
+## 6. Métriques collectées (exemple) :
+- `http_requests_total{job="fastapi"}` — nombre de requêtes HTTP par endpoint, méthode, code
+- `process_cpu_seconds_total` — temps CPU utilisé
+- `node_memory_Active_bytes` — RAM active
+
+### → Installer et configurer Grafana, le connecter à Prometheus et visualiser les métriques (FastAPI, Node Exporter) avec des dashboards.
+Étape 1 : Lancer Grafana avec Docker
+
 ``` bash
-cd monitoring
-prometheus --config.file=prometheuss.yml
+docker run -d -p 3000:3000 --name=grafana grafana/grafana
 ```
-->>>>> Lancement réussi de Prometheus sans conflit de port.
+Étape 2 : Ajouter Prometheus comme source de données
+Accède à Grafana : http://localhost:3000
+Menu latéral gauche → ⚙️ Configuration → Data Sources
+Clique sur Add data source
+Choisis Prometheus
+Dans le champ URL, mets :http://localhost:9090
 
-
-## Exposition des métriques FastAPI
-
-# Installation de prometheus-fastapi-instrumentator.
-
-Ajout de l’instrumentation dans l’application FastAPI :
 ``` bash
-from prometheus_fastapi_instrumentator import Instrumentator
-Instrumentator().instrument(app).expose(app)
+ output
+ Successfully queried the Prometheus API.
+Next, you can start to visualize data by building a dashboard, or by querying data in the Explore view.
 ```
-Ajout de l’endpoint /metrics visible et scrappé avec succès.
+Étape 3 : Importer un Dashboard Node Exporter + FastAPI
+🔹 Option A : Dashboard Node Exporter (prêt à l’emploi)
+Menu gauche → 📊 Dashboards → Import
 
-### Node Exporter
-
-# Installation et exécution de node_exporter.
-
-# Intégration comme target dans Prometheus.
-
-# Collecte des métriques système OK (CPU, RAM,...).
-
-### Validation via Prometheus UI
-
-Tous les endpoints sont UP dans l’onglet Targets.
-![alt text](image.png)
-![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
-
-
-Visualisation des métriques dans Graph, par ex :
-
-http_requests_total{job="fastapi", handler="/metrics"} = 4
+Dans le champ "Import via grafana.com", entre l’ID suivant :
+1860
