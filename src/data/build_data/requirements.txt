@@ -1,5 +1,7 @@
-requests==2.31.0
+requests
 pathlib
 click
 dotenv
 python-dotenv
+dvc[s3]
+dagshub

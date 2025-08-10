@@ -1,5 +1,5 @@
 outs:
-- md5: 98ecd86a7fe62e706f425ec973d3a457
+- md5: 2524d2c3b896e56cb3da0920e6d73d32
   size: 137
   hash: md5
   path: best_weights.pkl
