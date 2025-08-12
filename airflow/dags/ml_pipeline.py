@@ -207,26 +207,42 @@ with DAG(
        )
     
     # -*- we are creating the actual container to run a test on the model -*-. Note: The DockerOperator is used to run the container that makes predictions.
-        start_auth = DockerOperator(
+    #    start_auth = DockerOperator(
+    #        task_id="start_auth",
+    #        image="auth_service",
+    #        container_name="auth_service_container",
+    #        api_version="auto",
+    #        environment={
+    #            "SECRET_KEY": os.getenv("SECRET_KEY"),  # Secret key for JWT
+    #            "ALGORITHM": os.getenv("ALGORITHM"),    # Algorithm for JWT
+    #            "ACCESS_TOKEN_EXPIRE_MINUTES": os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"),  # Token expiration
+    #            "AUTH_SERVICE_LOGGER_PATH": os.getenv("AUTH_SERVICE_LOGGER_PATH"),  # Logger path for auth_service
+    #            "PYTHONUNBUFFERED": 1
+    #        },
+    #        mounts=[Mount(
+    #            source=os.getenv("PROJECT_HOST_PATH"),
+      #          target='/app',
+     #           type='bind'
+    #        )
+   #         ],
+  #          docker_url="unix://var/run/docker.sock",
+ #           detach=True  # Run the container in detached mode
+ #       )
+
+        start_auth = BashOperator(
             task_id="start_auth",
-            image="auth_service",
-            container_name="auth_service_container",
-            api_version="auto",
-            environment={
-                "SECRET_KEY": os.getenv("SECRET_KEY"),  # Secret key for JWT
-                "ALGORITHM": os.getenv("ALGORITHM"),    # Algorithm for JWT
-                "ACCESS_TOKEN_EXPIRE_MINUTES": os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"),  # Token expiration
-                "AUTH_SERVICE_LOGGER_PATH": os.getenv("AUTH_SERVICE_LOGGER_PATH"),  # Logger path for auth_service
-                "PYTHONUNBUFFERED": 1
-            },
-            mounts=[Mount(
-                source=os.getenv("PROJECT_HOST_PATH"),
-                target='/app',
-                type='bind'
+            bash_command=(
+                f"docker run -d "
+                f"--name auth_service_container "
+                f"--env SECRET_KEY='{os.getenv('SECRET_KEY')}' "
+                f"--env ALGORITHM='{os.getenv('ALGORITHM')}' "
+                f"--env ACCESS_TOKEN_EXPIRE_MINUTES='{os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES')}' "
+                f"--env AUTH_SERVICE_LOGGER_PATH='{os.getenv('AUTH_SERVICE_LOGGER_PATH')}' "
+                f"--env PYTHONUNBUFFERED=1 "
+                f"-v {os.getenv('PROJECT_HOST_PATH')}:/app "
+                f"-p 8011:8011 "
+                f"auth_service"
             )
-            ],
-            docker_url="unix://var/run/docker.sock",
-            auto_remove='success'
         )
  
     # -*- we are creating the image to run an authentication container -*-. Note: The BashOperator is used to run the commands that build the image.
@@ -235,35 +251,55 @@ with DAG(
             bash_command="""
  
                 cd /opt/airflow/mlops-project && \
-                docker build -f ./src/auth_service/Dockerfile -t serving_service .
+                docker build -f ./src/models/serve/Dockerfile -t serving_service .
  
             """
        )
     
     # -*- we are creating the actual container start serving requests -*-. Note: The DockerOperator is used to run the container that serves the API.
-        start_serving_service = DockerOperator(
+      #  start_serving_service = DockerOperator(
+      #      task_id="start_serving_service",
+      #      image="serving_service",
+      #      container_name="serving_service_container",
+      #      api_version="auto",
+      #      environment={
+      #          "SERVING_LOGGER_PATH": os.getenv("SERVING_LOGGER_PATH"),  
+      #          "CONCATENATED_MODEL_PATH": os.getenv("CONCATENATED_MODEL_PATH"),    
+      #          "TOKENIZER_CONFIG_PATH": os.getenv("TOKENIZER_CONFIG_PATH"),
+      #          "LSTM_MODEL_PATH": os.getenv("LSTM_MODEL_PATH"),
+      #          "VGG16_MODEL_PATH": os.getenv("VGG16_MODEL_PATH"),
+      #          "BEST_WEIGHTS_PATH": os.getenv("BEST_WEIGHTS_PATH"),
+      #          "MAPPER_PATH": os.getenv("MAPPER_PATH"),
+      #          "PYTHONUNBUFFERED": 1
+      #      },
+      #      mounts=[Mount(
+      #          source=os.getenv("PROJECT_HOST_PATH"),
+      #          target='/app',
+      #          type='bind'
+      #      )
+      #      ],
+      #      docker_url="unix://var/run/docker.sock",#,
+      #      port_bindings={8000: 8000},  # Bind the container's port 8000 to the host's port 8000
+      #      #detach=True  # Run the container in detached mode, this option oes not exist
+      #  )
+
+        start_serving_service = BashOperator(
             task_id="start_serving_service",
-            image="serving_service",
-            container_name="serving_service_container",
-            api_version="auto",
-            environment={
-                "SERVING_LOGGER_PATH": os.getenv("SERVING_LOGGER_PATH"),  
-                "CONCATENATED_MODEL_PATH": os.getenv("CONCATENATED_MODEL_PATH"),    
-                "TOKENIZER_CONFIG_PATH": os.getenv("TOKENIZER_CONFIG_PATH"),
-                "LSTM_MODEL_PATH": os.getenv("LSTM_MODEL_PATH"),
-                "VGG16_MODEL_PATH": os.getenv("VGG16_MODEL_PATH"),
-                "BEST_WEIGHTS_PATH": os.getenv("BEST_WEIGHTS_PATH"),
-                "MAPPER_PATH": os.getenv("MAPPER_PATH"),
-                "PYTHONUNBUFFERED": 1
-            },
-            mounts=[Mount(
-                source=os.getenv("PROJECT_HOST_PATH"),
-                target='/app',
-                type='bind'
+            bash_command=(
+                f"docker run -d "
+                f"--name serving_service_container "
+                f"--env MAPPER_PATH='{os.getenv('MAPPER_PATH')}' "
+                f"--env BEST_WEIGHTS_PATH='{os.getenv('BEST_WEIGHTS_PATH')}' "
+                f"--env VGG16_MODEL_PATH='{os.getenv('VGG16_MODEL_PATH')}' "
+                f"--env LSTM_MODEL_PATH='{os.getenv('LSTM_MODEL_PATH')}' "
+                f"--env TOKENIZER_CONFIG_PATH='{os.getenv('TOKENIZER_CONFIG_PATH')}' "
+                f"--env CONCATENATED_MODEL_PATH='{os.getenv('CONCATENATED_MODEL_PATH')}' "
+                f"--env SERVING_LOGGER_PATH='{os.getenv('SERVING_LOGGER_PATH')}' "
+                f"--env PYTHONUNBUFFERED=1 "
+                f"-v {os.getenv('PROJECT_HOST_PATH')}:/app "
+                f"-p 8000:8000 "
+                f"serving_service"
             )
-            ],
-            docker_url="unix://var/run/docker.sock",
-            auto_remove='success'
         )
 
         create_auth_image >> start_auth >> create_serving_image >> start_serving_service
