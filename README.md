@@ -585,8 +585,10 @@ prometheus --config.file=prometheus.yml
 ```
 
 ```bash
+
 cd node_exporter-1.8.1.linux-amd64
 ./node_exporter &
+
 ```
 
 ## 5.  Vérification de l’endpoint /metrics , prometheus, node exporter
@@ -618,10 +620,20 @@ http://http://localhost:9100
 Étape 1 : Lancer Grafana avec Docker
 
 ``` bash
-docker run -d -p 3000:3000 --name=grafana grafana/grafana
+docker run -d \
+  -p 3000:3000 \
+  --name=grafana \
+  grafana/grafana
+
+```
+Demarrer grafana si déja crée
+``` bash
+docker start grafana
+docker restart grafana
+
 ```
 Étape 2 : Ajouter Prometheus comme source de données
-Accède à Grafana : http://localhost:3000
+Accède à Grafana : http://localhost:3000(prochaine connexion docker start grafana)
 Menu latéral gauche → ⚙️ Configuration → Data Sources
 Clique sur Add data source
 Choisis Prometheus
@@ -632,9 +644,9 @@ Dans le champ URL, mets :http://localhost:9090
  Successfully queried the Prometheus API.
 Next, you can start to visualize data by building a dashboard, or by querying data in the Explore view.
 ```
+
 Étape 3 : Importer un Dashboard Node Exporter + FastAPI
 🔹 Option A : Dashboard Node Exporter (prêt à l’emploi)
-Menu gauche → 📊 Dashboards → Import
+Menu gauche → 📊 Dashboards → New Dashboards → ADD visualisation → choisir la source de données prometheus 
+Menu gauche → 📊 Dashboards → New Dashboards → ADD visualisation → choisir la source de données prometheus → 
 
-Dans le champ "Import via grafana.com", entre l’ID suivant :
-1860
