@@ -142,6 +142,7 @@ if __name__ == "__main__":
     #logging.basicConfig(level=logging.INFO, format=log_fmt)
     logger = logging.getLogger(__name__)
     log_file_path=os.environ.get("IMPORT_DATA_LOGGER_PATH", "../../../logs/train_model_logger.log")
+    
     os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
     fileHandler = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=3)
     

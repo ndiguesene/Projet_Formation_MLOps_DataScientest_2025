@@ -18,11 +18,6 @@ data/raw/Y_train_CVw08PX.csv
 data/predictions/predictions.json
 data/preprocessed/*
 
-!data/raw/*.dvc
-!data/preprocessed/*.dvc
-!data/predictions/*.dvc
-!data/raw/**/*.dvc
-
 # =======================
 # Modèles
 # =======================

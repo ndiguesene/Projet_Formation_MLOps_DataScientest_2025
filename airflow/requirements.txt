@@ -1,4 +1,4 @@
 mlflow==2.12.1
 dvc[s3]
 dagshub
-scikit-learn
+python-dotenv

@@ -29,6 +29,8 @@ MAPPER_PATH = os.getenv("MAPPER_PATH", "../../../models/mapper.pkl")
 DAGSHUB_USERNAME = os.getenv("DAGSHUB_USERNAME")
 DAGSHUB_TOKEN = os.getenv("DAGSHUB_TOKEN")
 
+print("Files in /app/models:", os.listdir('/app/models'))
+
 # Configure logging
 logger = logging.getLogger(__name__)
 log_file_path=os.environ.get("TRAIN_MODEL_LOGGER_PATH", "../../../logs/train_model_logger.log")
