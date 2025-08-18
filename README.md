@@ -449,7 +449,6 @@ Les configurations suivantes doivent être renseignées sur le fichier .env
 `DAGSHUB_USERNAME`: Nom d'utilisateur de votre compte DagsHub créé
 `DAGSHUB_TOKEN` : Votre token DagsHub
 
-
 Ici, nous démarrons la connexion à MLflow distant (src/models/train/main.py) :
 
 ```python
@@ -457,7 +456,6 @@ with mlflow.start_run(run_name="Train_Concatenate_Model") as run:
   mlflow.set_tag("source", "airflow")
   mlflow.set_tag("version", run_time)
   mlflow.set_tag("model_type", "VGG16+LSTM")
-
 ```
 
 Après entraînement, les artefacts et le modèle sont sauvegardés :
