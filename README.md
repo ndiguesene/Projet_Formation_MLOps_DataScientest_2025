@@ -540,3 +540,130 @@ make start
 Le service d'authentification est ouvert sur le port 8011:8011.
 Le service d'API est ouvert sur le port 8000:8000.
 
+
+###  Monitoring
+
+Intègrer un système de monitoring complet basé sur **Prometheus** et **Node Exporter**, avec exposition des métriques de l'application **FastAPI**.
+
+## 1.  Installation des dépendances
+
+Ajout de la dépendance Prometheus dans le fichier `requirements.txt` :
+
+```
+prometheus-fastapi-instrumentator
+```
+
+Installation avec pip :
+
+```bash
+pip install prometheus-fastapi-instrumentator
+```
+
+## 2.  Modification du code FastAPI
+
+Ajout de l’instrumentation Prometheus dans le fichier `src.models.serve.serve_model_fastapi.py` :
+
+```python
+from prometheus_fastapi_instrumentator import Instrumentator
+
+# Ajout après la création de l'application FastAPI
+app = FastAPI()
+
+# Instrumentation Prometheus
+Instrumentator().instrument(app).expose(app)
+
+```
+## 3. Configuration prometheus.yml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: "fastapi"
+    static_configs:
+      - targets: ["localhost:8000"]
+
+  - job_name: "node"
+    static_configs:
+      - targets: ["localhost:9100"]
+
+
+## 4.  Lancement de l’API , Prometheus et node exporter
+
+```bash
+uvicorn src.models.serve.serve_model_fastapi:app --reload
+```
+
+```bash
+prometheus --config.file=prometheus.yml
+```
+
+```bash
+
+cd node_exporter-1.8.1.linux-amd64
+./node_exporter &
+
+```
+
+## 5.  Vérification de l’endpoint /metrics , prometheus, node exporter
+
+Ouvrir dans le navigateur ou via curl :
+
+```bash
+http://localhost:8000/metrics
+
+```
+- > ![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
+
+```bash
+//http://localhost:9090
+
+```
+- > ![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
+
+```bash
+http://http://localhost:9100
+```
+
+## 6. Métriques collectées (exemple) :
+- `http_requests_total{job="fastapi"}` — nombre de requêtes HTTP par endpoint, méthode, code
+- `process_cpu_seconds_total` — temps CPU utilisé
+- `node_memory_Active_bytes` — RAM active
+
+### → Installer et configurer Grafana, le connecter à Prometheus et visualiser les métriques (FastAPI, Node Exporter) avec des dashboards.
+Étape 1 : Lancer Grafana avec Docker
+
+``` bash
+docker run -d \
+  -p 3000:3000 \
+  --name=grafana \
+  grafana/grafana
+
+```
+Demarrer grafana si déja crée
+``` bash
+docker start grafana
+docker restart grafana
+
+```
+Étape 2 : Ajouter Prometheus comme source de données
+Accède à Grafana : http://localhost:3000(prochaine connexion docker start grafana)
+Menu latéral gauche → ⚙️ Configuration → Data Sources
+Clique sur Add data source
+Choisis Prometheus
+Dans le champ URL, mets :http://localhost:9090
+
+``` bash
+ output
+ Successfully queried the Prometheus API.
+Next, you can start to visualize data by building a dashboard, or by querying data in the Explore view.
+```
+
+Étape 3 : Importer un Dashboard Node Exporter + FastAPI
+🔹 Option A : Dashboard Node Exporter (prêt à l’emploi)
+Menu gauche → 📊 Dashboards → New Dashboards → ADD visualisation → choisir la source de données prometheus 
+Menu gauche → 📊 Dashboards → New Dashboards → ADD visualisation → choisir la source de données prometheus → 
+
