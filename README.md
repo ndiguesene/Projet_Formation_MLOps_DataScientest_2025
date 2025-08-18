@@ -117,31 +117,34 @@ PYTHONPATH=$(pwd) pytest tests/test_api.py
 
 
 ---
-## Implémenter une API basique
+## Implémenbtation d'une API basique
 
 
 ## Partie 1 : serving, dockerisation et tests unitaires
 ### Restructuration des répertoires et fichiers
 
+#### data : build
+Ici, nous regroupons les logiques de récupération des données depuis le dépôt distant. Les données structurées sont récupérées depuis AWS DataScientest. Les données d'images sont récupérées depuis HiggingFace.
+
 #### train
 Ici, nous entraînons le modèle (contient les fichiers main.py et train_model.py). Le répertoire contiendra un Dockerfile spécifique pour lancer l'entraînement du modèle à la demande. Les résultats seront enregistrés dans `models` à la racine
+
 #### predict 
 Ici, on applique le modèle au données d'entraînement (contient le fichier predict.py). Le répertoire contiendra un Dockerfile spécifique pour lancer le test du modèle sur les données d'entraînement; Les résultats seront enregistrés sur data/predictions à la racine
-#### evaluate 
-Ici, on applique le modèle au données de test (devra être créé mais peut s'inspirer du fichier predict.py). Il contiendra un Dockerfile spécifique pour lancer le test du modèle sur les données de tes; Les résultats seront enregistrés sur data/predictions à la racine. 
-##### Il semble que l'on ne puisse pas évaluer car il n'y a pas de données labélisées sur l'ensemble de test.
+
 #### serve
 Ici, on utilisera dans un premier temps requests ou FastAPI pour créer une API qui va interroger le modèle avec des données préalablement renseignées (fichier serve.py à créer) et retournera des résultats que l'on pourra mettre dans data/predictions à la racine avec un nom de fichier spécifique
 Niveaux de serving : 
 1. Usage de FastAPI pour créer un contneur basique de serving
 2. Usage de BentoML pour automatiser le déploiement, serving etc
+
 #### Variables d'environnement : vous devez rajouter un fichier .env sur la racine du projet
 Les chemins des modèles (poids, mapper etc) ne sont plus codés en dur. Les modifications suivantes ont été apportées : 
 1. ajout fichier `.env` contenant les variables d'environnement (**ce fichier ne doit pas être poussé sur le git, il peut renfermer des informations sensibles tels clés d'api etc**)
 2. ajout fichier `.env.example` sur le git : fichier d'exemple montrant comment renseigner le fichier .env ( quelles sont les variables d'environnement etc)
 
 ## Conteneurisation
-Docker est utilisé pour conteneuriser les différents services de l'application. Chaque service dispose d'un répertoire spécifique sur les sources.
+Docker est utilisé pour conteneuriser les différents services de l'application. Chaque service dispose d'un répertoire spécifique sur les sources ainsi qu'un Dockerfile spécifique.
 
 ### Variables d'environnement
 Le fichier `.env` à la racine du projet, doit être mis en jour avec les répertoires de volume créés dans le conteneur (Exemple : `TOKENIZER_CONFIG_PATH=/app/models/tokenizer_config.json`).
@@ -198,7 +201,7 @@ Le service de prédiction est composé pour le moment de deux endpoints :
 `image`: UploadFile = File(...)  # L'image correspondant au produit </br>
 
 ![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
-![Retour /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_return.png)s
+![Retour /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_return.png)
 
 ### Services : sécurisation et logging
 
@@ -214,7 +217,7 @@ Un gestionnaire d'exception global pour RateLimitExceeded garantit que les utili
 ##### Authentification et authorisation
 Nous avons mis en œuvre OAuth2 avec JWT pour sécuriser les points de terminaison. Les clés d'authenication sont tous sauvegardés comme variables d'environnement.
 Le point de terminaison `/token` génère des jetons d'accès, et la dépendance `get_current_user` garantit que seuls les utilisateurs authentifiés peuvent accéder aux points de terminaison protégés comme `/predict`.
-La protection des points de terminaison sensibles comme `/predict` garantit que seuls les utilisateurs autorisés peuvent accéder à vos modèles. 
+La protection des points de terminaison sensibles comme `/predict` garantit que seuls les utilisateurs autorisés peuvent accéder aux modèles. 
 La logique de sécurité est séparée dans security_logic.py, ce qui rend la base de code plus modulaire et réutilisable.
 Dans cette version, les utilisateurs ne sont pas dans une base de données.
 - `security_logic.py` : wrapper contenant les logiques d'authentification et d'authorisation utilisés par le script principal.
@@ -223,6 +226,7 @@ Dans cette version, les utilisateurs ne sont pas dans une base de données.
 Nous avons mis en place un intergiciel qui enregistre chaque demande avec un identifiant unique, une méthode, une URL, un code d'état et un temps de traitement.
 La journalisation est essentielle pour le débogage, la surveillance et l'audit.
 L'inclusion des identifiants des requêtes et des temps de traitement facilite le suivi et l'optimisation des performances. 
+
 - `import_data_logger.log`
 - `train_model_logger.log`
 - `test_model_logger.log`
@@ -239,6 +243,7 @@ Le fichier `docker-compose.xml` à la racine du projet est utilisé pour orchest
 ##### Technologies utilisées
 1. Docker : utilisé pour créer chaque service de l'application en un conteneur indépendant
 2. Logging et FileHandler : nous utilisons un logging centralisé pour chaque service (téléchargement et traitement des données, entraînement du modèle concaténé, test du modèle entraîné et serving).
+
 Chaque service retourne un fichier log spécifique disponible dans le répertoire logs/ à la racine du projet.
 3. Slowapi : utilisé pour limiter le taux de requête sur les routes.
 4. Oauth2 et JWT : sécurisation des routes d'API en terme d'authentification et d'authorisation.
@@ -257,131 +262,12 @@ Exemple retours :
 
 ![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/securing_apis/reports/securing_api_authorized.png)
 
-### Suivi du modèle existant best_lstm_model.h5 avec MLflow
-Projet_Formation_MLOps_DataScientest_2025/
-│
-├── models/
-│ ├── best_lstm_model.h5
-│ ├── tokenizer_config.json
-│ ├── mapper.pkl
-│ └── ...
-│
-├── log_existing_model.py
-└── README.md
+---------
 
-## ✅ Objectif
-
-Logger le modèle déjà entraîné (`best_lstm_model.h5`) dans MLflow pour :
-- le sauvegarder comme artefact,
-- ajouter des métadonnées (paramètres, tags),
-- le visualiser depuis l'interface web de MLflow,
-- faciliter sa réutilisation (rechargement ou déploiement).
-
-## ⚙️ Pré-requis
-
-- MLflow installé :
-  ```bash
-  pip install mlflow tensorflow
-
-  1. Lancer le tracking server (facultatif si en local)
- ```bash
-
-   mlflow ui --host 0.0.0.0 --port 5000
-```
-
-## Contenu de ``log_existing_model.py``
-# Ce script permet de logger le modèle dans MLflow.
-
-``` bash
-import mlflow
-import mlflow.keras
-from tensorflow.keras.models import load_model
-
-model = load_model("models/best_lstm_model.h5")
-
-mlflow.set_tracking_uri("file:///home/ubuntu/projet_mlops/Projet_Formation_MLOps_DataScientest_2025/mlruns")
-
-with mlflow.start_run(run_name="Log_Existing_LSTM_Model"):
-    mlflow.log_param("type", "pretrained")
-    mlflow.log_param("format", "H5")
-    mlflow.keras.log_model(model, "lstm_model_logged")
-```
-    
-# Résultats attendus 
-Visualisation des métriques et des artefacts sur l'interface web de MLflow :
-
-![Mlfow / Experiment](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/test_mmlflow/reports/mlfow_experiment.png)
-
-![Mlfow / Metris](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/test_mmlflow/reports/mlflow_metrics.png)s
-
-
-
-## Procédure pour intégrer MLflow avec DagsHub
-Afin de visualiser les expériences dans l'onglet "MLflow" du dépôt DagsHub, le fichier ``log_with_mlflow.py`` est une version étendue qui :
-
-- Initialise l'intégration avec DagsHub,
-
-- Logue le modèle et ses artefacts dans MLflow,
-
-- Propulse toutes les données sur DagsHub, en liant DVC, Git et MLflow
-
-
-# Initialisation de DagsHub avec l'intégration de MLflow
-le script `log_with_mlflow.py`
-
-``` bash
-import dagshub
-dagshub.init(repo_owner='mariamanadia',
-             repo_name='Projet_Formation_MLOps_DataScientest_2025',
-             mlflow=True)
-
-import mlflow
-with mlflow.start_run():
-  mlflow.log_param('parameter name', 'value')
-  mlflow.log_metric('metric name', 1)
-
-```
-# Installation des dépendances
-Installer MLflow et DagsHub 
-``` bash
-pip install mlflow dagshub
-
-```
-
-Fonctionnement
-DVC : Gère le versioning des données et des modèles.
-
-Git : Gestion du code source, suivi des versions.
-
-MLflow : Suivi des expériences, gestion des modèles, visualisation des résultats.
-
-DagsHub : Intégration de DVC, Git et MLflow pour centraliser la gestion de ton projet MLOps.
-
-Une fois le script exécuté, tu pourras voir l'expérience dans l'interface web de MLflow ainsi que dans ton dépôt DagsHub.
-
- MLFLOW sur Dags
-![MLFLOW / DAGSHUB](https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025/experiments)
-
-# Pourquoi ne pas utiliser dvc add pour le modèle ?
-Le modèle best_lstm_model.h5 est déjà géré automatiquement par DVC via le pipeline défini dans ``dvc.yaml`` 
-``` bash
-stages:
-  train:
-    cmd: python src/models/train/train_model.py
-    deps:
-      - data/raw
-      - src/models/train/train_model.py
-    outs:
-      - models/best_lstm_model.h5
-
-````
-Cela permet à DVC de suivre automatiquement les versions du modèle généré sans utiliser dvc add.
-Utiliser dvc add en plus provoquerait un conflit de suivi.
-
-# Test Unitaire
+## Tests Unitaires
 ## Documentation des tests unitaires
 
-Ce document décrit les tests unitaires définis pour l’API FastAPI. Ils couvrent les trois endpoints principaux : racine (`/`), `GET /status` et `POST /predict`.
+Cette partie de la documentation décrit les tests unitaires définis pour l’API FastAPI. Ils couvrent les trois endpoints principaux : racine (`/`), `GET /status` et `POST /predict`.
 
 ---
 
@@ -476,21 +362,29 @@ Chaque test utilise un TestClient pour simuler des requêtes HTTP vers l’appli
     - response.status_code == 200 
     - La réponse JSON contient les champs predicted et label
 
----
-## Automatisation DVC/DgasHub/MLFlow (à mettre à jour par Awa TIAM)
-Note : à partir de là, tout se fait via les conteneurs Docker. Donc, il faut obligatoirement disposer d'un fichier .env à la racine du projet. Exemple de contenu .env partagé via Teams.
-#### Créer un fichier .env (ne pas oublier de mettre à jour les infos dagshub (token))
+---------
+
+## Automatisation DVC/DgasHub/MLFlow
+
+A partir de là, nous travaillons exclusvement avec Docker.
+Donc, il faut obligatoirement disposer d'un fichier .env à la racine du projet. Exemple de contenu .env disponible sur le fichier `.env.example``.
+
+1. Après avoir cloner le code, créer un fichier .env (ne pas oublier de mettre à jour vos informations dagshub (token))
 ```bash
 touch .env
 
 ```
 
-#### Données nécessaires : fichiers artefacts non dispoinibles sur Git
+2. Données nécessaires : fichiers artefacts non dispoinibles sur Git
 Les fichiers .h5, .json, .pkl (best_lstm_model, best_vgg16, best_weights, mapper, tokenizer) doivent être disponibles dans le dossier `models`.
 Ils ont utilisé dans l'entraînement des modèles.
-Ces fichiers sont partagés via Teams.
+A la récupération du projet, si ces fichiers ne sont pas disponibles, faire une commande : 
 
-#### Exécuter la pipeline sans Airflow
+```bash
+dvc pull
+```
+
+3. Exécuter la pipeline sans Airflow (tests uniquement)
 
 ```bash
 docker compose up
@@ -499,27 +393,152 @@ docker compose up
 
 !! Le fichier à la racine `run_compose_options.sh` contient des examples de commandes pour exécuter chaque service en particulier.
 
-#### Exécuter la pipeline via Airflow
+4. Exécuter la pipeline via Airflow en mode standalone
 
-##### Mettre à jour le fichier sous airflow/dags/initialize_airflow.sh et exécuter le fichier
+Lancer une instance airflow en local (juste pour des tets) : mettre à jour le fichier sous airflow/dags/initialize_airflow.sh et exécuter le fichier
 
 ```bash
 export AIRFLOW_HOME=`répertoire absolu du projet`/airflow  
 airflow db migrate
 
-# Start Airflow in standalone mode (creates an admin user automatically, crdentials are saved /Users/tiam028713/airflow/simple_auth_manager_passwords.json.generated )
+# Démarrer airflow en mode standalone (crée un utilisateur admin automatiquement, les credentials sont enregsitrés sous : airflow/simple_auth_manager_passwords.json.generated )
 airflow standalone
 
 ```
 
+5. Exécuter la pipeline via Airflow et Docker
+Dans cette partie du projet, nous entrons dans l'industrialisation.  Voir le point suivant.
 
-##### Co
+---------
 
-# Start Airflow in standalone mode (creates an admin user automatically, crdentials are saved /Users/tiam028713/airflow/simple_auth_manager_passwords.json.generated )
-airflow standalone
+### Architecture MLOps
+Pour automatiser l'exécution des tâches end-to-end, nous mettons en contribution Airflow(gestion de l'ordonnancement et exécution automatique des tâches), Docker(encapsulation des logiques avec toutes les dépendances) et DVC(gestionnaire du versionnage des données).
 
-#### Ports ouverts
+#### Motivations
+Dans une pipeline de MLOps comme celui qui nous concerne, il est bien de s'assurer de certains aspects : 
+- les données utilisées à chaque exécution du modèle sont connus et récupérables, ceci rejoint l'aspect reproductibilité
+- la version entraînée du modèle est connu, suavegardé et récupérable, toujours sur l'aspect reproductibilité
+- les artefacts du modèle correspondant à cette version d'exécution sont enregistrés et récupérables
+- la version générale du code est enregistrée et récupérable
+- les exécutions sont agnostiques de la plateforme utilisée
 
-Le service d'authentification est ouvert sur le port 8011:8011
-Le service d'API est ouvert sur le port 8000:8000
+#### Outils
+
+- Airlfow nous permet de gérer l'ordonnancement et l'exécution automatique des différentes tâches requises pour entraîner le modèle
+- MLfow nous permet de sauvegarder le modèle, les métriques ainsi que les artefacts produits après chaque entraînement
+- DVC nous permet d'assurer la sauvegarde et le versionning des données utilisées lors de l'entraînement, le modèle produit, les fichiers artefacts produits
+- Docker nous permet d'assurer l'encapsulation de touts les prérequis à l'exécution de tous les stages de notre pipeline d'entraînement
+- Git nous permet d'assurer la sauvegarde de tous les fichiers de code requis pour la bonne exécution et la création des images et conteneurs Docker
+
+#### Configurations
+
+##### Fichier .env
+Le fichier .env est un fichier très important pour le projet se trouvant sur la racine. Il contient toutes les variables de configuration nécessaires pour la bonne exécution de la pipeline MLFlow.
+Il contient les liens vers les fichiers requis à l'entraînement du modèle (poids, tokenizer etc). Il contient également, les répertoires d'enregitrement des données ainsi que du modèle.
+Ces derniers sont utilisés notamment par DVC pour le versionning des données.
+Il contient également les secret pour le module d'authentification.
+Ce fichier n'est pas versionné mais un fichier exemple (`.enf.example`) est disponible sur le répertoire distant.
+
+##### DVC et MLflow
+Nous utilisons DVC via DagsHub S3 en plus du tracking distant MLflow lié à DagsHub.
+Les commandes de configuration DVC à appliquer en local est disponible sur l'interface DagsHub.
+
+Les configurations suivantes doivent être renseignées sur le fichier .env
+`MLFLOW_TRACKING_URI` : correspond au lien distant MLflow lié à DagsHub.
+`MLFLOW_EXPERIMENT_NAME` : par ProductCodeClassifier
+`DAGSHUB_USERNAME`: Nom d'utilisateur de votre compte DagsHub créé
+`DAGSHUB_TOKEN` : Votre token DagsHub
+
+
+Ici, nous démarrons la connexion à MLflow distant (src/models/train/main.py) :
+
+```python
+with mlflow.start_run(run_name="Train_Concatenate_Model") as run:
+  mlflow.set_tag("source", "airflow")
+  mlflow.set_tag("version", run_time)
+  mlflow.set_tag("model_type", "VGG16+LSTM")
+
+```
+
+Après entraînement, les artefacts et le modèle sont sauvegardés :
+```python
+ # Log artefacts
+  mlflow.log_artifact(tokenizer_config_path)
+  mlflow.log_artifact(mapper_path_pkl)
+  mlflow.log_artifact( best_weights_path_pkl)
+  mlflow.log_artifact(BEST_WEIGHTS_PATH)
+  mlflow.log_artifact(MAPPER_PATH)
+
+  # Log the models
+  mlflow.keras.log_model(lstm, "lstm_model")
+  mlflow.keras.log_model(vgg16, "vgg16_model")
+  mlflow.keras.log_model(concatenate_model, "concatenate_model")
+```
+
+##### Docker
+Comme présenté plus haut, les différents stages de notre pipeline sont dockerisés. Chaque stage dispose d'un Dockerfile permettant de créer automatiquement une image.
+
+##### Airflow
+Nous utilisons Ariflow sous Docker, nous récupérons donc le docker-compose officiel dédié sur le site de Airflow (https://airflow.apache.org/docs/apache-airflow/3.0.4/docker-compose.yaml).
+Ce fichier a été mis à jour et est disponible à la racine du projet : `docker-compose.yml`.
+Il a été mis à jour suivant : 
+- les volumes : nous lions le projet en local aux différents conteneurs démarrés par Ariflow pour permettre la disponbilité des logiques et fichiers de code (` - ./:/opt/airflow/mlops-project `) nécessaires à la bonne exécution des stages en particulier des logiques pour créer les images des stages (Dockerfile).
+- l'utilisateur admin airflow
+
+L'exécution de  ce fichier produit les conteneurs/services suivants :  
+- la base de  données PostgreSQL
+- la base de données Redis
+- le serveur d'api de Airflow
+- le scheduler de Airflow
+- le dag processor de Ariflow
+- un worker
+- un Triggerer
+
+#### Stages de la pipeline MLflow
+
+- Définition 
+La définition de la pipeline sous forme de dag Airflow est disponible sous `airflow/dags/ml_pipeline.py`.
+Les opérateurs Docker : `BashOperator` et `DockerOperator` ont été utilisés.
+
+Les différents stages de notre pipeline ont été regroupés et se présentent comme suit : 
+
+![Pipeline global Airflow](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/automating_dvc_mlflow_docker/reports/pipeline.png)
+
+1. Récupération des données : 3 opérateurs Airflow
+- construction de l'image Docker contenant la logique de récupération des données
+- création et lancement du conteneur de récupération des données
+- enregistrement des données récupérées sur DVC
+
+2. Entraînement du modèle : 3 opérateurs Airflow
+- création de l'image Docker contenant la logique d'entraînement du modèle
+- création et lancement du conteneur d'entraînement du modèle - enregistrement du modèle et des artéfacts sur MLflow
+- enregistrement du modèle et des fichiers sur DVC
+
+3. Test du modèle : 3 opérateurs Airflow
+- création de l'image de test
+- création et lancement du conteneur de test
+- enregistrement des prédictions résultats sur DVC
+
+4. Service d'exposition de l'API : 4 opérateurs Airflow
+- création image pour l'authentification
+- création et lancement du conteneur d'authentification : ce conteneur s'exécute en backgroud après lancement
+- création de l'image d'exposition de l'API
+- création et lancement du conteneur d'exposition de l'API 
+
+#### Lancement
+- Premier lancement : initialise les bases Postgres SQL et Redis
+```bash
+make init-airflow
+```
+- Lancement : 
+```bash
+make start
+```
+
+![Pipeline global Airflow](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/automating_dvc_mlflow_docker/reports/detailled_pipeline.png)
+
+#### Ports ouverts requis par la pipeline
+
+Le service d'authentification est ouvert sur le port 8011:8011.
+Le service d'API est ouvert sur le port 8000:8000.
 
