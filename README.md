@@ -654,7 +654,7 @@ Accède à Grafana : http://localhost:3000(prochaine connexion docker start graf
 Menu latéral gauche → ⚙️ Configuration → Data Sources
 Clique sur Add data source
 Choisis Prometheus
-Dans le champ URL, mets :http://localhost:9090
+Dans le champ URL, mets :http://prometheus:9090
 
 ``` bash
  output
