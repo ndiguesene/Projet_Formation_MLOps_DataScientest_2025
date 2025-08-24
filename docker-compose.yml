@@ -57,6 +57,8 @@ services:
       retries: 5
       start_period: 5s
     restart: always
+    networks:
+      - product_classier
 
   redis:
     # Redis is limited to 7.2-bookworm due to licencing change
@@ -71,6 +73,8 @@ services:
       retries: 50
       start_period: 30s
     restart: always
+    networks:
+      - product_classier
 
   airflow-apiserver:
     <<: *airflow-common
@@ -84,6 +88,8 @@ services:
       retries: 5
       start_period: 30s
     restart: always
+    networks:
+      - product_classier
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -99,6 +105,8 @@ services:
       retries: 5
       start_period: 30s
     restart: always
+    networks:
+      - product_classier
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -114,6 +122,8 @@ services:
       retries: 5
       start_period: 30s
     restart: always
+    networks:
+      - product_classier
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -122,6 +132,8 @@ services:
   airflow-worker:
     <<: *airflow-common
     command: celery worker
+    networks:
+      - product_classier
     healthcheck:
       # yamllint disable rule:line-length
       test:
@@ -147,6 +159,8 @@ services:
   airflow-triggerer:
     <<: *airflow-common
     command: triggerer
+    networks:
+      - product_classier
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"']
       interval: 30s
@@ -162,6 +176,8 @@ services:
   airflow-init:
     <<: *airflow-common
     entrypoint: /bin/bash
+    networks:
+      - product_classier
     # yamllint disable rule:line-length
     command:
       - -c
@@ -255,6 +271,8 @@ services:
     <<: *airflow-common
     profiles:
       - debug
+    networks:
+      - product_classier
     environment:
       <<: *airflow-common-env
       CONNECTION_CHECK_MAX_COUNT: "0"
@@ -274,6 +292,8 @@ services:
     command: celery flower
     profiles:
       - flower
+    networks:
+      - product_classier
     ports:
       - "5555:5555"
     healthcheck:
@@ -287,5 +307,39 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+
+  # Monitoring services : Prometheus and Grafana
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    networks:
+      - product_classier
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    networks:
+      - product_classier
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
 volumes:
-  postgres-db-volume:
+  postgres-db-volume: {}
+    # This volume is used to store PostgreSQL data, so that it persists across container restarts.
+    # It is mounted to /var/lib/postgresql/data in the PostgreSQL container.
+  grafana_data: {}
+    # This volume is used to store Grafana data, so that it persists across container restarts.
+    # It is mounted to /var/lib/grafana in the Grafana container.
+networks:
+  product_classier:
+    # Specify driver options
+    driver: bridge
+    external: true

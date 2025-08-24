@@ -8,9 +8,6 @@ from docker.types import Mount
 from airflow.utils.task_group import TaskGroup
 
 load_dotenv(dotenv_path="/opt/airflow/mlops-project/.env")
-host_path_logs = os.path.abspath("./logs")  # convert './' to full absolute path
-host_path_models = os.path.abspath("./mlops-project/models")  
-host_path_data = os.path.abspath("./data")  # convert './' to full absolute path
 
 with DAG(
     dag_id="ml_pipeline_dvc",
@@ -190,7 +187,6 @@ with DAG(
  
             """
         )
- 
 
         create_prediction_image >> run_prediction >> push_prediction_results
 
@@ -205,34 +201,11 @@ with DAG(
  
             """
        )
-    
-    # -*- we are creating the actual container to run a test on the model -*-. Note: The DockerOperator is used to run the container that makes predictions.
-    #    start_auth = DockerOperator(
-    #        task_id="start_auth",
-    #        image="auth_service",
-    #        container_name="auth_service_container",
-    #        api_version="auto",
-    #        environment={
-    #            "SECRET_KEY": os.getenv("SECRET_KEY"),  # Secret key for JWT
-    #            "ALGORITHM": os.getenv("ALGORITHM"),    # Algorithm for JWT
-    #            "ACCESS_TOKEN_EXPIRE_MINUTES": os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"),  # Token expiration
-    #            "AUTH_SERVICE_LOGGER_PATH": os.getenv("AUTH_SERVICE_LOGGER_PATH"),  # Logger path for auth_service
-    #            "PYTHONUNBUFFERED": 1
-    #        },
-    #        mounts=[Mount(
-    #            source=os.getenv("PROJECT_HOST_PATH"),
-      #          target='/app',
-     #           type='bind'
-    #        )
-   #         ],
-  #          docker_url="unix://var/run/docker.sock",
- #           detach=True  # Run the container in detached mode
- #       )
 
         start_auth = BashOperator(
             task_id="start_auth",
             bash_command=(
-                f"docker run -d "
+                f"docker run -d --network product_classier "
                 f"--name auth_service_container "
                 f"--env SECRET_KEY='{os.getenv('SECRET_KEY')}' "
                 f"--env ALGORITHM='{os.getenv('ALGORITHM')}' "
@@ -255,38 +228,11 @@ with DAG(
  
             """
        )
-    
-    # -*- we are creating the actual container start serving requests -*-. Note: The DockerOperator is used to run the container that serves the API.
-      #  start_serving_service = DockerOperator(
-      #      task_id="start_serving_service",
-      #      image="serving_service",
-      #      container_name="serving_service_container",
-      #      api_version="auto",
-      #      environment={
-      #          "SERVING_LOGGER_PATH": os.getenv("SERVING_LOGGER_PATH"),  
-      #          "CONCATENATED_MODEL_PATH": os.getenv("CONCATENATED_MODEL_PATH"),    
-      #          "TOKENIZER_CONFIG_PATH": os.getenv("TOKENIZER_CONFIG_PATH"),
-      #          "LSTM_MODEL_PATH": os.getenv("LSTM_MODEL_PATH"),
-      #          "VGG16_MODEL_PATH": os.getenv("VGG16_MODEL_PATH"),
-      #          "BEST_WEIGHTS_PATH": os.getenv("BEST_WEIGHTS_PATH"),
-      #          "MAPPER_PATH": os.getenv("MAPPER_PATH"),
-      #          "PYTHONUNBUFFERED": 1
-      #      },
-      #      mounts=[Mount(
-      #          source=os.getenv("PROJECT_HOST_PATH"),
-      #          target='/app',
-      #          type='bind'
-      #      )
-      #      ],
-      #      docker_url="unix://var/run/docker.sock",#,
-      #      port_bindings={8000: 8000},  # Bind the container's port 8000 to the host's port 8000
-      #      #detach=True  # Run the container in detached mode, this option oes not exist
-      #  )
 
         start_serving_service = BashOperator(
             task_id="start_serving_service",
             bash_command=(
-                f"docker run -d "
+                f"docker run -d --network product_classier "
                 f"--name serving_service_container "
                 f"--env MAPPER_PATH='{os.getenv('MAPPER_PATH')}' "
                 f"--env BEST_WEIGHTS_PATH='{os.getenv('BEST_WEIGHTS_PATH')}' "
