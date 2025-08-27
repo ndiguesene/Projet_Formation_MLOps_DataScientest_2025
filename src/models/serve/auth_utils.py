@@ -1,7 +1,7 @@
 import requests
 from fastapi import HTTPException, status, Depends
 
-AUTH_SERVICE_URL = "http://auth_service:8011"  # URL of the authentication service
+AUTH_SERVICE_URL = "http://auth_service_container:8011"  # URL of the authentication service
 
 def verify_token(token: str):
     """
