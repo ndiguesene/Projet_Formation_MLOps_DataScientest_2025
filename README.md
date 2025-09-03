@@ -12,8 +12,8 @@ Les métriques suivantes sont programmées pour mesurer la performance du modèl
          6. F1-score : Prendre en compte le déséquilibre des classes 
          7. Temps d’inférence : Mesurer la rapidité des prédictions du modèle
 
-2. **Données et Infrastructure**
-   1. **Sources des données** : stockés dans HuggingFace: https://huggingface.co/datasets/ndiguesene/ml-datasets-image-rakuten-ecommerce/resolve/main/
+# Données et Infrastructure**
+1. **Sources des données** : stockés dans HuggingFace: https://huggingface.co/datasets/ndiguesene/ml-datasets-image-rakuten-ecommerce/resolve/main/
       - Données textuelles (~60 MB)
       - Données images (~2.5 GB)
    2. **Stockage** : fichiers plats (CSV)
@@ -34,7 +34,10 @@ Les métriques suivantes sont programmées pour mesurer la performance du modèl
 6. **Sécurité et Gouvernance**
    1. Routes d'API sécurisées via l'usage du Json Web Token (JWT)
 
-3. **Vous êtes préssés ? Démarrez rapidement ici !**
+
+---------
+
+#  **Vous êtes préssés ? Démarrez rapidement ici !**
 L'usage exclusif de Docker sur ce projet nous permet d'assurer la reproductibilité. Il est donc primordiale que vous ayez un Docker Engine up.
 Il vous est, tout de même, conseillé de créer un environnement virtuel Python lorsque vous souhaitez lancer ce projet.
 
@@ -48,7 +51,7 @@ Cela va créer un dossier `rakuten-project-mlops/` contenant l’environnement v
 
 Ensuite utilisez cet environnement pour toutes les commandes futures.
 
-**Fichier .env**
+### Fichier .env**
 Le projet dispose d'un fichier `.env` non versionné contenant les informations nécessaires à son bon fonctionnement. Vous pouvez vous inspirer du fichier `.env.example` pour créer votre fichier `.env`.
  Les informations requises :
 
@@ -82,10 +85,10 @@ TEST_USER=`Login de l'utilisateur de l'API`
 TEST_USER_FULLNAME=`Nom de l'utilisateur de l'API`
 TEST_USER_PASSWORD=`Mot de passe de l'utilisateur de l'API`
 
-**Dépendances**
+### **Dépendances**
 Chaque module de ce projet contient ses dépendances dans un fichier requirements qui lui est propre. Ce projet utilise Git pour gérer le versionnement du code. Il est donc constitué de plusieurs branches. Les données requises pour le développement du modèle (si vous enatrînez le modèle from scratch)  sont versionnées via DVC DagsHub avec option d'enregistrement sur S3. Les étapes suivantes vous montrent comment configurer ces outils. Les étapes suivantes sont effectuées sur le répertoire racine du projet.
 
-**Configurer un stockage distant avec DVC**
+### **Configurer un stockage distant avec DVC**
 Nous utilisons **S3 d’AWS** pour sauvegarder les données. Pour cela, il faut d'abord installer S3 à l’aide de la commande suivante :
  
 ```bash
@@ -123,7 +126,7 @@ Votre fichier `.dvc/config`(créé sur initialisation de dvc sur le répertoire 
     endpointurl = https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025.s3
 ```
 
-**!!Récupérer les artefacts et modèles et données déjà existants!!**
+### **!!Récupérer les artefacts et modèles et données déjà existants!!**
 `Attention`, cette étape est très importante. Sans elle, vous ne pouvez avoir les artefacts et les modèles pour poursuivre le traitement.
 Dans ce projet, nous entraînons un modèle multimodal utilisant deux modèles VGG16 et LSTM déjà existants et versionnés sur DasgHub. Il vous faudra donc les récupérer.
 Vous pouvez récupéree les données lorsque vous souhaitez réentraîner le modèle.
@@ -132,7 +135,7 @@ Vous pouvez récupéree les données lorsque vous souhaitez réentraîner le mod
 dvc pull
 ```
 
-**!!Lancer la pipeline Ariflow**
+### **!!Lancer la pipeline Ariflow**
 Pour un premier lancement, les bases de Airflow seront créées aisni que leurs volumes associés, les répertoires nécessaires à Aifrlow en local sont également créés.
 
 ```bash
@@ -151,7 +154,7 @@ Pour arrêter la pipeline, utilisez la commande suiovante :
 make stop
 ```
 
-**Comment tester les endpoints**
+### **Comment tester les endpoints**
 Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez configurer ses accès dans le fichier `.env` à travers les paramètres (`TEST_USER,TEST_USER_FULLNAME,TEST_USER_PASSWORD`).
 
 ---------
