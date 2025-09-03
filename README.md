@@ -1,3 +1,25 @@
+- [Contexte et Objectifs](#contexte-et-objectifs)
+  - [Objectifs et métriques](#objectifs-et-métriques)
+- [Données et Infrastructure](#données-et-infrastructure)
+- [🚀 Vous êtes préssés ? Démarrez rapidement ici !](#-vous-êtes-préssés--démarrez-rapidement-ici-)
+  - [Fichier .env](#fichier-env)
+  - [Dépendances](#dépendances)
+  - [Configurer un stockage distant avec DVC](#configurer-un-stockage-distant-avec-dvc)
+  - [Récupérer les artefacts et modèles et données déjà existants](#récupérer-les-artefacts-et-modèles-et-données-déjà-existants)
+  - [Lancer la pipeline Airflow](#lancer-la-pipeline-airflow)
+  - [Comment tester les endpoints](#comment-tester-les-endpoints)
+- [Structure du projet](#structure-du-projet)
+  - [Structure globale](#structure-globale)
+  - [Struture du code des stages : data, train, auth, predict](#struture-du-code-des-stages--data-train-auth-predict)
+- [Détails d'implémentation](#détails-dimplémentation)
+  - [Partie 1 : serving, dockerisation et tests unitaires](#partie-1--serving-dockerisation-et-tests-unitaires)
+  - [Conteneurisation](#conteneurisation)
+  - [API de prédiction](#api-de-prédiction)
+  - [Services : sécurisation et logging](#services--sécurisation-et-logging)
+- [Tests Unitaires](#tests-unitaires)
+  - [Documentation des tests unitaires](#documentation-des-tests-unitaires)
+- [Automatisation DVC/DgasHub/MLFlow](#automatisation-dvcdgashubmlflow)
+
 # Contexte et Objectifs
  
 ## Objectifs et métriques
