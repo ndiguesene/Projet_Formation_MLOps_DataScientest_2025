@@ -18,7 +18,7 @@
   - [Services : sécurisation et logging](#services--sécurisation-et-logging)
 - [Tests Unitaires](#tests-unitaires)
   - [Documentation des tests unitaires](#documentation-des-tests-unitaires)
-- [Automatisation DVC/DgasHub/MLFlow](#automatisation-dvcdgashubmlflow)
+- [Automatisation Airflow/DVC/DagsHub/MLFlow](#automatisation-airflowdvcdagshubmlflow)
 - [Monitoring](#monitoring)
 
 # Contexte et Objectifs
@@ -763,10 +763,11 @@ Les différents stages de notre pipeline ont été regroupés et se présentent 
 - création et lancement du conteneur d'exposition de l'API 
 
 #### Lancement
-- Premier lancement : initialise les bases Postgres SQL et Redis
+- Premier lancement : initialise les bases Postgres SQL et Redis :
 ```bash
 make init-airflow
 ```
+
 - Lancement : 
 ```bash
 make start
@@ -784,20 +785,35 @@ Le service d'API est ouvert sur le port 8000:8000.
 Intègrer un système de monitoring complet basé sur **Prometheus** et **Node Exporter**, avec exposition des métriques de l'application **FastAPI**.
 
 ## 1.  Installation des dépendances
+Les services de monitoring sont intégrés également dans notre docker compose.
 
-Ajout de la dépendance Prometheus dans le fichier `requirements.txt` :
-
+```yaml
+...
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    networks:
+      - product_classier
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    networks:
+      - product_classier
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+...
 ```
-prometheus-fastapi-instrumentator
-```
 
-Installation avec pip :
-
-```bash
-pip install prometheus-fastapi-instrumentator
-```
-
-## 2.  Modification du code FastAPI
+## 2.  Mise à jour du code FastAPI
 
 Ajout de l’instrumentation Prometheus dans le fichier `src.models.serve.serve_model_fastapi.py` :
 
@@ -812,6 +828,7 @@ Instrumentator().instrument(app).expose(app)
 
 ```
 ## 3. Configuration prometheus.yml
+```yaml
 global:
   scrape_interval: 15s
 
@@ -822,31 +839,14 @@ scrape_configs:
 
   - job_name: "fastapi"
     static_configs:
-      - targets: ["localhost:8000"]
+      - targets: ["serving_service_container:8000"]
 
   - job_name: "node"
     static_configs:
       - targets: ["localhost:9100"]
-
-
-## 4.  Lancement de l’API , Prometheus et node exporter
-
-```bash
-uvicorn src.models.serve.serve_model_fastapi:app --reload
 ```
 
-```bash
-prometheus --config.file=prometheus.yml
-```
-
-```bash
-
-cd node_exporter-1.8.1.linux-amd64
-./node_exporter &
-
-```
-
-## 5.  Vérification de l’endpoint /metrics , prometheus, node exporter
+## 4.  Vérification de l’endpoint /metrics , prometheus, node exporter
 
 Ouvrir dans le navigateur ou via curl :
 
@@ -854,13 +854,13 @@ Ouvrir dans le navigateur ou via curl :
 http://localhost:8000/metrics
 
 ```
-- > ![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
+
 
 ```bash
 //http://localhost:9090
 
 ```
-- > ![Endpoint /predict](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/awa/restructure_folders/reports/predict_endpoint_input.png)
+
 
 ```bash
 http://http://localhost:9100
@@ -888,11 +888,11 @@ docker restart grafana
 
 ```
 Étape 2 : Ajouter Prometheus comme source de données
-Accède à Grafana : http://localhost:3000(prochaine connexion docker start grafana)
+Accèdez à Grafana : http://localhost:3000
 Menu latéral gauche → ⚙️ Configuration → Data Sources
-Clique sur Add data source
-Choisis Prometheus
-Dans le champ URL, mets :http://prometheus:9090
+Cliquez sur `Add data source`
+Choisissez Prometheus
+Dans le champ URL, mettez :http://prometheus:9090
 
 ``` bash
  output
