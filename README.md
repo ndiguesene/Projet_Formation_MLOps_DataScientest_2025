@@ -1,6 +1,6 @@
 # Contexte et Objectifs
  
-1. **Objectifs et métriques**
+## Objectifs et métriques
 Ce projet ayant pour objectifs de cataloguer les produits selon des données différentes (textes et images) est important pour les e-commerces puisque cela permet de réaliser des applications diverses telles que la recommandation de produits et la recherche personnalisée. Il s’agit alors de prédire le code type des produits à partir de données textuelles (désignation et description des produits) ainsi que des données d'images (image du produit). Construire un modèle de classification d’images pour catégoriser des produits e-commerce.
 Le client est le site internet de Rakuten, et plus particulièrement les administrateurs de ce site.
 Nous mettons en place une pipeline MLOps pour permettre l'automatisation, la scalabilité, et la fiabilité des modèles mis en place, et ce, dans le long terme.
@@ -12,7 +12,7 @@ Les métriques suivantes sont programmées pour mesurer la performance du modèl
          6. F1-score : Prendre en compte le déséquilibre des classes 
          7. Temps d’inférence : Mesurer la rapidité des prédictions du modèle
 
-# Données et Infrastructure**
+## Données et Infrastructure
 1. **Sources des données** : stockés dans HuggingFace: https://huggingface.co/datasets/ndiguesene/ml-datasets-image-rakuten-ecommerce/resolve/main/
       - Données textuelles (~60 MB)
       - Données images (~2.5 GB)
@@ -30,7 +30,7 @@ Les métriques suivantes sont programmées pour mesurer la performance du modèl
 5. **Déploiement et Scalabilité**
    1. **Mode de déploiement** : Batch (REST API)
    2. **Infrastructure de déploiement** : Docker et Airflow
-   3. **Gestion du drift** : Non implémenté
+   3. **Gestion du drift** : Non encore implémenté
 6. **Sécurité et Gouvernance**
    1. Routes d'API sécurisées via l'usage du Json Web Token (JWT)
 
@@ -40,7 +40,6 @@ Les métriques suivantes sont programmées pour mesurer la performance du modèl
 #  Vous êtes préssés ? Démarrez rapidement ici !
 L'usage exclusif de Docker sur ce projet nous permet d'assurer la reproductibilité. Il est donc primordiale que vous ayez un Docker Engine up.
 Il vous est, tout de même, conseillé de créer un environnement virtuel Python lorsque vous souhaitez lancer ce projet.
-
 Créez l'environnement virtuel (exemple : `rakuten-project-mlops`) avec les étapes suivantes sur Linux :
  
 ```bash
@@ -53,42 +52,42 @@ Ensuite utilisez cet environnement pour toutes les commandes futures.
 
 ### Fichier .env
 Le projet dispose d'un fichier `.env` non versionné contenant les informations nécessaires à son bon fonctionnement. Vous pouvez vous inspirer du fichier `.env.example` pour créer votre fichier `.env`.
- Les informations requises :
+Les informations requises :
 
 ```
-TOKENIZER_CONFIG_PATH=`Répertoire et nom du fichier artefact tokenizer format json` </br>
-LSTM_MODEL_PATH=`Répertoire et nom du modèle pré-entraîné lstm format h5` </br>
-VGG16_MODEL_PATH=`Répertoire et nom du modèle pré-entraîné image VGG16 format h5` </br>
-BEST_WEIGHTS_PATH=`Répertoire et nom du fichier d'artefacts des poids précalculés format json` </br>
-BEST_WEIGHTS_PATH_PKL=`Répertoire et nom du fichier d'artefacts des poids précalculés format pickle` </br>
-MAPPER_PATH=`Répertoire et nom du fichier d'artefacts mapper sous format json` </br>
-MAPPER_PATH_PKL=`Répertoire et nom du fichier d'artefacts mapper sous format pickle` </br>
-DATASET_PATH=`Répertoire d'enregistrement des données textuelles d'entraînement de test, doit être dans $DATA_PATH` </br>
-DATA_PATH=`Répertoire d'enregistrement des données d'entraînement`</br> 
-IMAGES_PATH=`Répertoire d'enregistrement des images d'entraînement de test, doit être dans $DATA_PATH`</br>
-PREDICTIONS_PATH=`Répertoire d'enregistrement des prédictions test effectués après entrainement`</br>
-CONCATENATED_MODEL_PATH=`Répertoire d'enregistrement du modèle concaténé`</br>
-SERVING_LOGGER_PATH=`Répertoire et nom du fichier de logs de l'API dans le conteneur`</br>
-SECRET_KEY=`Clé secrete utilisée pour le hachage`</br>
-ALGORITHM=`Algorithme de hachage pour génération toke JWT, défaut HS256`</br>
-ACCESS_TOKEN_EXPIRE_MINUTES=`Délai d'expiration du token JWT, défaut 30 minutes`</br>
-TEST_MODEL_LOGGER_PATH=`Répertoire et nom du fichier de logs de test du modèle dans le conteneur`</br>
-TRAIN_MODEL_LOGGER_PATH=`Répertoire et nom du fichier de logs d'entraînement dans le conteneur`</br>
-IMPORT_DATA_LOGGER_PATH=`Répertoire et nom du fichier de logs dans le conteneur`</br>
-AUTH_SERVICE_LOGGER_PATH=`Répertoire et nom du fichier de logs dans le conteneur`</br>
+TOKENIZER_CONFIG_PATH=`Répertoire et nom du fichier artefact tokenizer format json`
+LSTM_MODEL_PATH=`Répertoire et nom du modèle pré-entraîné lstm format h5` 
+VGG16_MODEL_PATH=`Répertoire et nom du modèle pré-entraîné image VGG16 format h5`
+BEST_WEIGHTS_PATH=`Répertoire et nom du fichier d'artefacts des poids précalculés format json` 
+BEST_WEIGHTS_PATH_PKL=`Répertoire et nom du fichier d'artefacts des poids précalculés format pickle` 
+MAPPER_PATH=`Répertoire et nom du fichier d'artefacts mapper sous format json` 
+MAPPER_PATH_PKL=`Répertoire et nom du fichier d'artefacts mapper sous format pickle`
+DATASET_PATH=`Répertoire d'enregistrement des données textuelles d'entraînement de test, doit être dans $DATA_PATH`
+DATA_PATH=`Répertoire d'enregistrement des données d'entraînement`
+IMAGES_PATH=`Répertoire d'enregistrement des images d'entraînement de test, doit être dans $DATA_PATH`
+PREDICTIONS_PATH=`Répertoire d'enregistrement des prédictions test effectués après entrainement`
+CONCATENATED_MODEL_PATH=`Répertoire d'enregistrement du modèle concaténé`
+SERVING_LOGGER_PATH=`Répertoire et nom du fichier de logs de l'API dans le conteneur`
+SECRET_KEY=`Clé secrete utilisée pour le hachage`
+ALGORITHM=`Algorithme de hachage pour génération toke JWT, défaut HS256`
+ACCESS_TOKEN_EXPIRE_MINUTES=`Délai d'expiration du token JWT, défaut 30 minutes`
+TEST_MODEL_LOGGER_PATH=`Répertoire et nom du fichier de logs de test du modèle dans le conteneur`
+TRAIN_MODEL_LOGGER_PATH=`Répertoire et nom du fichier de logs d'entraînement dans le conteneur`
+IMPORT_DATA_LOGGER_PATH=`Répertoire et nom du fichier de logs dans le conteneur`
+AUTH_SERVICE_LOGGER_PATH=`Répertoire et nom du fichier de logs dans le conteneur`
 MLFLOW_TRACKING_URI=https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025.mlflow
-MLFLOW_EXPERIMENT_NAME=ProductCodeClassifier </br>
-DAGSHUB_USERNAME=`Votre identifiant DagsHub` </br>
-DAGSHUB_TOKEN=`Votre token DagsHub` </br>
-AIRFLOW_UID=0 </br>
-PROJECT_HOST_PATH=`Répertoire absolu de votre projet, requis pour l'usage de l'opérateur Airflow DockerOperator` </br>
-TEST_USER=`Login de l'utilisateur de l'API` </br>
-TEST_USER_FULLNAME=`Nom de l'utilisateur de l'API` </br>
-TEST_USER_PASSWORD=`Mot de passe de l'utilisateur de l'API` </br>
+MLFLOW_EXPERIMENT_NAME=ProductCodeClassifier
+DAGSHUB_USERNAME=`Votre identifiant DagsHub`
+DAGSHUB_TOKEN=`Votre token DagsHub`
+AIRFLOW_UID=0
+PROJECT_HOST_PATH=`Répertoire absolu de votre projet, requis pour l'usage de l'opérateur Airflow DockerOperator`
+TEST_USER=`Login de l'utilisateur de l'API`
+TEST_USER_FULLNAME=`Nom de l'utilisateur de l'API`
+TEST_USER_PASSWORD=`Mot de passe de l'utilisateur de l'API`
 ```
 
 ### Dépendances
-Chaque module de ce projet contient ses dépendances dans un fichier requirements qui lui est propre. Ce projet utilise Git pour gérer le versionnement du code. Il est donc constitué de plusieurs branches. Les données requises pour le développement du modèle (si vous enatrînez le modèle from scratch)  sont versionnées via DVC DagsHub avec option d'enregistrement sur S3. Les étapes suivantes vous montrent comment configurer ces outils. Les étapes suivantes sont effectuées sur le répertoire racine du projet.
+Chaque module de ce projet contient ses dépendances dans un fichier requirements qui lui est propre. Ce projet utilise Git pour gérer le versionnement du code. Il est donc constitué de plusieurs branches. Les données requises pour le développement du modèle (si vous entraînez le modèle from scratch)  sont versionnées via DVC DagsHub avec option d'enregistrement sur S3. Les étapes suivantes vous montrent comment configurer ces outils. Les étapes suivantes sont effectuées sur le répertoire racine du projet.
 
 ### Configurer un stockage distant avec DVC
 Nous utilisons **S3 d’AWS** pour sauvegarder les données. Pour cela, il faut d'abord installer S3 à l’aide de la commande suivante :
@@ -137,20 +136,20 @@ Vous pouvez récupéree les données lorsque vous souhaitez réentraîner le mod
 dvc pull
 ```
 
-### Lancer la pipeline Ariflow
+### Lancer la pipeline Airflow
 Pour un premier lancement, les bases de Airflow seront créées aisni que leurs volumes associés, les répertoires nécessaires à Aifrlow en local sont également créés.
 
 ```bash
 make init-airflow
 ```
 
-Pour lancer la pipeline, utilisez la commande suiovante :
+Pour lancer la pipeline, utilisez la commande suivante :
 
 ```bash
 make start
 ```
 
-Pour arrêter la pipeline, utilisez la commande suiovante :
+Pour arrêter la pipeline, utilisez la commande suivante :
 
 ```bash
 make stop
