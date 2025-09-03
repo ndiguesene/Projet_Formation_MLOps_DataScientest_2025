@@ -162,6 +162,7 @@ Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez confi
 ## Structure du projet
 
 ### Structure globale
+```
 .
 ├── LICENSE
 ├── Makefile
@@ -278,10 +279,11 @@ Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez confi
 └── tests
     ├── __init__.py
     └── test_api.py
-
+```
 
 ### Struture du code des stages : data, train, auth, predict
 
+```
 .
 ├── __init__.py
 ├── auth_service
@@ -327,7 +329,7 @@ Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez confi
         ├── requirements.txt
         ├── train_model.py
         └── up.sh
-
+```
 
 
 ---------
