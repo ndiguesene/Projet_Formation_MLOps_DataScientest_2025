@@ -159,6 +159,19 @@ Vous pouvez récupéree les données lorsque vous souhaitez réentraîner le mod
 dvc pull
 ```
 
+### Créer le réseau Docker
+Les différents services communiquent entre eux pour pouvoir effectuer les traitements. Cependant, les services qui ne sont pas présents sur le fichier `docker-compose.yml` ne seront pas, par défaut, sur le même réseau.
+Cela inclut nos services d'entrainement, de test, de prédiction qui sont lancés par Airflow après son exécution via docker-compose.
+Docker Compose créé par défaut un réseau partagé par tous les services qui le composent, il est souvent préfixé par le nom du projet. 
+Pour éviter cette situation, nous vous suggérons de créer en amont un réseau docker.
+
+```bash
+docker network create -d bridge product_classier
+```
+
+`Attention` : si vous modifiez le nom du réseau docker, vous devez le mettre à jour sur le fichier `docker-compose.yml` mais également sur les operators airflow qui lancent les services d'authentification et de l'API fichier `airflow/dags/ml_pipeline.py`.
+
+
 ### Lancer la pipeline Airflow
 Pour un premier lancement, les bases de Airflow seront créées aisni que leurs volumes associés, les répertoires nécessaires à Aifrlow en local sont également créés.
 
