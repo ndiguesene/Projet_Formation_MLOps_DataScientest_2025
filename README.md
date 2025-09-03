@@ -64,13 +64,13 @@ Les métriques suivantes sont programmées pour mesurer la performance du modèl
 # Vous êtes préssés ? Démarrez rapidement ici
 L'usage exclusif de Docker sur ce projet nous permet d'assurer la reproductibilité. Il est donc primordiale que vous ayez un Docker Engine up.
 Il vous est, tout de même, conseillé de créer un environnement virtuel Python lorsque vous souhaitez lancer ce projet.
-Créez l'environnement virtuel (exemple : `rakuten-project-mlops`) avec les étapes suivantes sur Linux :
+Créez l'environnement virtuel (exemple : `Rakuten-project`) avec les étapes suivantes sur Linux :
  
 ```bash
-python -m venv rakuten-project-mlops
+conda deactivate
+conda create -n Rakuten-project
+conda activate Rakuten-project
 ```
-
-Cela va créer un dossier `rakuten-project-mlops/` contenant l’environnement virtuel.
 
 Ensuite utilisez cet environnement pour toutes les commandes futures.
 
