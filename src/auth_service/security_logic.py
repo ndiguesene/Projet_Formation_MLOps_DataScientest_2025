@@ -37,10 +37,10 @@ def get_password_hash(password):
 # Mock user database
 fake_users_db = {
     "data_engineer": {
-        "username": "data_engineer",
-        "full_name": "Data Engineer",
+        "username": os.get_env("TEST_USER", "data_engineer"),
+        "full_name": os.get_env("TEST_USER_FULLNAME", "Data Engineer"),
         "email": "rakuten@example.com",
-        "hashed_password": get_password_hash("43SoYourAreADataEngineer34"),
+        "hashed_password": get_password_hash(os.getenv("TEST_USER_PASSWORD", "43SoYourAreADataEngineer34")),
         "disabled": False,
     }
 }

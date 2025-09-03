@@ -1,124 +1,161 @@
-# Phase 1
+# Contexte et Objectifs
  
-- **Définir les objectifs et métriques du projet**
-- **Mettre en place l'environnement de développement avec Docker ou de simples environnements virtuels**
-- **Créer les premiers pipelines de données et d'entraînement**
-- **Mise en place Git pour le code et premiers tests automatisés**
-- **Créer une API basique pour le modèle**
-## Cadrage du Projet MLOps
-Cataloguer les produits selon des données différentes (textes et images) est important pour les e-commerces puisque cela permet de réaliser des applications diverses telles que la recommandation de produits et la recherche personnalisée. Il s’agit alors de prédire le code type des produits à partir de données textuelles (désignation et description des produits) ainsi que des données d'images (image du produit).
+1. **Objectifs et métriques**
+Ce projet ayant pour objectifs de cataloguer les produits selon des données différentes (textes et images) est important pour les e-commerces puisque cela permet de réaliser des applications diverses telles que la recommandation de produits et la recherche personnalisée. Il s’agit alors de prédire le code type des produits à partir de données textuelles (désignation et description des produits) ainsi que des données d'images (image du produit). Construire un modèle de classification d’images pour catégoriser des produits e-commerce.
 Le client est le site internet de Rakuten, et plus particulièrement les administrateurs de ce site.
-### Étapes pour cadrer le projet MLOps (Rakuten)
-1. **Objectifs et Problématique**
-   1. Pourquoi mettre en place un pipeline MLOps ? (automatisation, scalabilité, fiabilité…)
-   2. Quels sont les objectifs ?
-      1. Construire un modèle de classification d’images pour catégoriser des produits e-commerce.
-      2. Déploiement du modèle deep learning en production.
-   3. Quels sont les KPIs pour mesurer la performance du modèle et du pipeline MLOps ? (ex. : précision, latence, coût d’inférence…)
-      4. Métriques :
+Nous mettons en place une pipeline MLOps pour permettre l'automatisation, la scalabilité, et la fiabilité des modèles mis en place, et ce, dans le long terme.
+
+Dans ce projet, nous entraînons un modèle multimodal utilisant deux modèles `VGG16` et `LSTM` déjà existants et versionnés sur DasgHub. Il vous faudra donc les récupérer.
+
+Les métriques suivantes sont programmées pour mesurer la performance du modèle et du pipeline MLOps:
          5. Accuracy : Évaluer la proportion de bonnes prédictions 
          6. F1-score : Prendre en compte le déséquilibre des classes 
          7. Temps d’inférence : Mesurer la rapidité des prédictions du modèle
+
 2. **Données et Infrastructure**
    1. **Sources des données** : stockés dans HuggingFace: https://huggingface.co/datasets/ndiguesene/ml-datasets-image-rakuten-ecommerce/resolve/main/
       - Données textuelles (~60 MB)
       - Données images (~2.5 GB)
    2. **Stockage** : fichiers plats (CSV)
    3. **Nettoyage & Préparation** : Stratégie de gestion des données manquantes et transformation.
-   4. **Infrastructure** : À définir.
+   4. **Infrastructure** : l'infrastructure de déploiement mis en place se base entièrement et exclusivement sur Apache Airflow et Docker.
 3. **Développement du Modèle ML**
    1. **Choix des algorithmes** : Deep learning
    2. **Frameworks utilisés** : TensorFlow, Scikit-learn
 4. **Industrialisation avec MLOps**
-   1. **CI/CD pour le ML** : GitHub, GitHub Actions
-   2. **Gestion des modèles** : MLflow
+   1. **Gestion du versionnement des modèles** : MLflow
+   2. **Versionnage des données, des métriques et artefacts** : DVC et DagsHub 
    3. **Orchestration** : Airflow
    4. **Monitoring & Observabilité** : Prometheus, Grafana
 5. **Déploiement et Scalabilité**
    1. **Mode de déploiement** : Batch (REST API)
-   2. **Infrastructure de déploiement** : Docker, Kubernetes (à confirmer)
-   3. **Gestion du drift** : Retrain automatique, A/B testing, monitoring des performances
+   2. **Infrastructure de déploiement** : Docker et Airflow
+   3. **Gestion du drift** : Non implémenté
 6. **Sécurité et Gouvernance**
-   1. Sécurisé les APIs exposées
-## Mettre en place l'environnement de développement reproductible
-### Création de l'environnement 
-#### - Sans Docker
-Créez l'environnement virtuel avec les étapes suivantes sur Linux :
+   1. Routes d'API sécurisées via l'usage du Json Web Token (JWT)
+
+3. **Vous êtes préssés ? Démarrez rapidement ici !**
+L'usage exclusif de Docker sur ce projet nous permet d'assurer la reproductibilité. Il est donc primordiale que vous ayez un Docker Engine up.
+Il vous est, tout de même, conseillé de créer un environnement virtuel Python lorsque vous souhaitez lancer ce projet.
+
+Créez l'environnement virtuel (exemple : `rakuten-project-mlops`) avec les étapes suivantes sur Linux :
  
-`python -m venv rakuten-project-mlops`
- 
+```bash
+python -m venv rakuten-project-mlops
+```
+
 Cela va créer un dossier `rakuten-project-mlops/` contenant l’environnement virtuel.
+
+Ensuite utilisez cet environnement pour toutes les commandes futures.
+
+**Fichier .env**
+Le projet dispose d'un fichier `.env` non versionné contenant les informations nécessaires à son bon fonctionnement. Vous pouvez vous inspirer du fichier `.env.example` pour créer votre fichier `.env`.
+ Les informations requises :
+
+TOKENIZER_CONFIG_PATH=`Répertoire et nom du fichier artefact tokenizer format json`
+LSTM_MODEL_PATH=`Répertoire et nom du modèle pré-entraîné lstm format h5`
+VGG16_MODEL_PATH=`Répertoire et nom du modèle pré-entraîné image VGG16 format h5`
+BEST_WEIGHTS_PATH=`Répertoire et nom du fichier d'artefacts des poids précalculés format json`
+BEST_WEIGHTS_PATH_PKL=`Répertoire et nom du fichier d'artefacts des poids précalculés format pickle`
+MAPPER_PATH=`Répertoire et nom du fichier d'artefacts mapper sous format json`
+MAPPER_PATH_PKL=`Répertoire et nom du fichier d'artefacts mapper sous format pickle`
+DATASET_PATH=`Répertoire d'enregistrement des données textuelles d'entraînement de test, doit être dans $DATA_PATH`
+DATA_PATH=`Répertoire d'enregistrement des données d'entraînement`
+IMAGES_PATH=`Répertoire d'enregistrement des images d'entraînement de test, doit être dans $DATA_PATH`
+PREDICTIONS_PATH=`Répertoire d'enregistrement des prédictions test effectués après entrainement`
+CONCATENATED_MODEL_PATH=`Répertoire d'enregistrement du modèle concaténé`
+SERVING_LOGGER_PATH=`Répertoire et nom du fichier de logs de l'API dans le conteneur`
+SECRET_KEY=`Clé secrete utilisée pour le hachage`
+ALGORITHM=`Algorithme de hachage pour génération toke JWT, défaut HS256`
+ACCESS_TOKEN_EXPIRE_MINUTES=`Délai d'expiration du token JWT, défaut 30 minutes`
+TEST_MODEL_LOGGER_PATH=`Répertoire et nom du fichier de logs de test du modèle dans le conteneur`
+TRAIN_MODEL_LOGGER_PATH=`Répertoire et nom du fichier de logs d'entraînement dans le conteneur`
+IMPORT_DATA_LOGGER_PATH=`Répertoire et nom du fichier de logs dans le conteneur`
+AUTH_SERVICE_LOGGER_PATH=`Répertoire et nom du fichier de logs dans le conteneur`
+MLFLOW_TRACKING_URI=https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025.mlflow
+MLFLOW_EXPERIMENT_NAME=ProductCodeClassifier
+DAGSHUB_USERNAME=`Votre identifiant DagsHub`
+DAGSHUB_TOKEN=`Votre token DagsHub`
+AIRFLOW_UID=0
+PROJECT_HOST_PATH=`Répertoire absolu de votre projet, requis pour l'usage de l'opérateur Airflow DockerOperator`
+TEST_USER=`Login de l'utilisateur de l'API`
+TEST_USER_FULLNAME=`Nom de l'utilisateur de l'API`
+TEST_USER_PASSWORD=`Mot de passe de l'utilisateur de l'API`
+
+**Dépendances**
+Chaque module de ce projet contient ses dépendances dans un fichier requirements qui lui est propre. Ce projet utilise Git pour gérer le versionnement du code. Il est donc constitué de plusieurs branches. Les données requises pour le développement du modèle (si vous enatrînez le modèle from scratch)  sont versionnées via DVC DagsHub avec option d'enregistrement sur S3. Les étapes suivantes vous montrent comment configurer ces outils. Les étapes suivantes sont effectuées sur le répertoire racine du projet.
+
+**Configurer un stockage distant avec DVC**
+Nous utilisons **S3 d’AWS** pour sauvegarder les données. Pour cela, il faut d'abord installer S3 à l’aide de la commande suivante :
  
-### Installer les dépendances
- 
-Installez les dépendances nécessaires :
- 
-`pip install -r requirements.txt`
- 
-#### - Avec Docker
-- Créer un Dockerfile et un `docker-compose.yml`
-- Construire l’image avec `docker build -t ml_env .`
-- Lancer le conteneur avec `docker-compose up`
-### Importer les données dans `raw/data`
- 
-Ensuite, exécutez le script pour importer les données depuis le repo HuggingFace :
-`python3 src/data/import_raw_data.py`
- 
-Arborescence des données
+```bash
+pip install "dvc[S3]"
 ```
-    data/raw/
-    │── image_train/
-    │   ├── image_123456789_product_987654321.jpg
-    │   ├── image_987654321_product_123456789.jpg
-    │   └── ...
-    │── image_test/
-    │   ├── image_111111111_product_222222222.jpg
-    │   ├── image_222222222_product_111111111.jpg
-    │   └── ...
-```
----
-## Copiez les données brutes dans `data/preprocessed/` :
- 
-`python3 src/data/make_dataset.py data/raw data/preprocessed`
- 
-## Entraînez les modèles sur l’ensemble de données et enregistrez-les dans le dossier models
- 
-`python3 python src/main.py`
-## Démarrer les pratiques de versionning et des tests automatisés
-### Suivi et gestion des versions des données et des modèles de données
-1. **Initialiser DVC dans le projet**
+
+**Initialiser DVC dans le projet**
+
 ```bash
   dvc init
 ```
-2. **Ajouter les fichiers volumineux avec DVC**
+
+**Configurer DagsHub comme stockage distant** 
+Une fois le support de S3 installé, il faudra mettre à jour le fichier de configuration `.dvc/config` pour ajouter DagsHub comme votre stockage distant. Les commandes à suivre sont les suivantes : 
+
 ```bash
-    dvc add data/raw/image_train
-    dvc add data/raw/image_test
-    dvc add data/preprocessed/X_train_update.csv
-    dvc add data/preprocessed/X_test_update.csv
+dvc remote add origin s3://dvc
+dvc remote modify origin endpointurl https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025.s3
+
 ```
-3. **Créer un fichier `.gitignore` pour ignorer les fichiers volumineux suivis par DVC**
+Ici, `votre_token(*)` est à récupérer sur l'interface de DagsHub. Il sera par ailleurs utilisé dans votre pipeline Airflow pour pousser les données automatiquement vers DVC.
+
 ```bash
-  echo "*.dvc" > .gitignore
+dvc remote modify origin --local access_key_id votre_koken(*)
+dvc remote modify origin --local secret_access_key votre_token(*)
 ```
-### Configurer un stockage distant avec DVC
-On utilisera **S3 d’AWS** pour sauvegarder les données. Pour cela, il faut d'abord installer S3 à l’aide de la commande suivante :
 
- 
-`pip install "dvc[S3]"`
- 
- 
-Une fois S3 installé, il faudra mettre à jour le fichier de configuration `.dvc/config` pour ajouter DagsHub comme notre stockage distant.
----
-## Implémenter une API basique
+Votre fichier `.dvc/config`(créé sur initialisation de dvc sur le répertoire du projet)  devrait ressembler à ceci : 
 
-PYTHONPATH=$(pwd) pytest tests/test_api.py
+```bash
+[core]
+    remote = origin
+['remote "origin"']
+    url = s3://dvc
+    endpointurl = https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025.s3
+```
 
+**!!Récupérer les artefacts et modèles et données déjà existants!!**
+`Attention`, cette étape est très importante. Sans elle, vous ne pouvez avoir les artefacts et les modèles pour poursuivre le traitement.
+Dans ce projet, nous entraînons un modèle multimodal utilisant deux modèles VGG16 et LSTM déjà existants et versionnés sur DasgHub. Il vous faudra donc les récupérer.
+Vous pouvez récupéree les données lorsque vous souhaitez réentraîner le modèle.
 
+```bash
+dvc pull
+```
 
----
-## Implémenbtation d'une API basique
+**!!Lancer la pipeline Ariflow**
+Pour un premier lancement, les bases de Airflow seront créées aisni que leurs volumes associés, les répertoires nécessaires à Aifrlow en local sont également créés.
 
+```bash
+make init-airflow
+```
+
+Pour lancer la pipeline, utilisez la commande suiovante :
+
+```bash
+make start
+```
+
+Pour arrêter la pipeline, utilisez la commande suiovante :
+
+```bash
+make stop
+```
+
+**Comment tester les endpoints**
+Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez configurer ses accès dans le fichier `.env` à travers les paramètres (`TEST_USER,TEST_USER_FULLNAME,TEST_USER_PASSWORD`).
+
+---------
+## Détails d'implémentation
 
 ## Partie 1 : serving, dockerisation et tests unitaires
 ### Restructuration des répertoires et fichiers
@@ -193,6 +230,7 @@ Contient les fichiers :
 Le service de prédiction est composé pour le moment de deux endpoints : 
 - `/status` : pour obtenir le statut de l'application. Retourne un message si l'application est up.
 - `/predict` :  pour obtenir une classifiction d'un code produit en fonction des informations suivantes : </br>
+
 `product_identifier`: str = Form(...), # Un identifiant entier pour le produit. Cet identifiant est utilisé pour associer le produit à son code de type de produit correspondant. </br>
 `designation`: str = Form(...), # Le titre du produit, un court texte résumant le produit </br>
 `description`: str = Form(...),  # Un texte plus détaillé décrivant le produit. Tous les commerçants n'utilisent pas ce champ, donc, afin de conserver l’originalité des données, le champ description peut contenir des valeurs NaN pour de nombreux produits. </br>
@@ -238,7 +276,7 @@ Nous avons inclu un (RotateFileHandler) pour gérer la limitation de la taille d
 Nous avons rajouté une méthode au démarrage de l'application de prédiction pour charger tous les modèles et fichiers de configuration pour éviter leur chargement à chaque demande de prédiction.
 
 ##### Orchestration
-Le fichier `docker-compose.xml` à la racine du projet est utilisé pour orchestrer tous les services du projet. Nous utilisons le fichier .env pour assurer la réusabilité des différents environnemenst (production, staging etc) et la modularité.
+Le fichier `docker-compose.xml` à la racine du projet est utilisé pour orchestrer tous les services du projet. Nous utilisons le fichier `.env` pour assurer la réusabilité des différents environnemenst (production, staging etc) et la modularité.
 
 ##### Technologies utilisées
 1. Docker : utilisé pour créer chaque service de l'application en un conteneur indépendant
@@ -367,15 +405,15 @@ Chaque test utilise un TestClient pour simuler des requêtes HTTP vers l’appli
 ## Automatisation DVC/DgasHub/MLFlow
 
 A partir de là, nous travaillons exclusvement avec Docker.
-Donc, il faut obligatoirement disposer d'un fichier .env à la racine du projet. Exemple de contenu .env disponible sur le fichier `.env.example``.
+Donc, il faut obligatoirement disposer d'un fichier `.env` à la racine du projet. Exemple de contenu `.env` disponible sur le fichier `.env.example``.
 
-1. Après avoir cloner le code, créer un fichier .env (ne pas oublier de mettre à jour vos informations dagshub (token))
+1. Après avoir cloner le code, créer un fichier `.env` (ne pas oublier de mettre à jour vos informations dagshub (token))
 ```bash
 touch .env
 
 ```
 
-2. Données nécessaires : fichiers artefacts non dispoinibles sur Git
+2. Données nécessaires : fichiers artefacts non disponibles sur Git
 Les fichiers .h5, .json, .pkl (best_lstm_model, best_vgg16, best_weights, mapper, tokenizer) doivent être disponibles dans le dossier `models`.
 Ils ont utilisé dans l'entraînement des modèles.
 A la récupération du projet, si ces fichiers ne sont pas disponibles, faire une commande : 
@@ -391,11 +429,11 @@ docker compose up
 
 ```
 
-!! Le fichier à la racine `run_compose_options.sh` contient des examples de commandes pour exécuter chaque service en particulier.
+!! Le fichier à la racine `run_compose_options.sh` contient des examples de commandes pour exécuter chaque service en particulier(Tests unqiuement).
 
 4. Exécuter la pipeline via Airflow en mode standalone
 
-Lancer une instance airflow en local (juste pour des tets) : mettre à jour le fichier sous airflow/dags/initialize_airflow.sh et exécuter le fichier
+Lancer une instance airflow en local (juste pour des tests) : mettre à jour le fichier sous airflow/dags/initialize_airflow.sh et exécuter le fichier
 
 ```bash
 export AIRFLOW_HOME=`répertoire absolu du projet`/airflow  
