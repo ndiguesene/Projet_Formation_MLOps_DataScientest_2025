@@ -1,7 +1,7 @@
 - [Contexte et Objectifs](#contexte-et-objectifs)
   - [Objectifs et métriques](#objectifs-et-métriques)
 - [Données et Infrastructure](#données-et-infrastructure)
-- [Vous êtes préssés ? Démarrez rapidement ici](#-vous-êtes-préssés--démarrez-rapidement-ici-)
+- [Vous êtes préssés ? Démarrez rapidement ici](#vous-%C3%AAtes-pr%C3%A9ss%C3%A9s--d%C3%A9marrez-rapidement-ici)
   - [Fichier .env](#fichier-env)
   - [Dépendances](#dépendances)
   - [Configurer un stockage distant avec DVC](#configurer-un-stockage-distant-avec-dvc)
