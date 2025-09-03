@@ -12,7 +12,7 @@
   - [Structure globale](#structure-globale)
   - [Struture du code des stages : data, train, auth, predict](#struture-du-code-des-stages--data-train-auth-predict)
 - [Détails d'implémentation](#détails-dimplémentation)
-  - [Partie 1 : serving, dockerisation et tests unitaires](#serving-dockerisation-et-tests-unitaires)
+  - [Serving, dockerisation et tests unitaires](#serving-dockerisation-et-tests-unitaires)
   - [Conteneurisation](#conteneurisation)
   - [API de prédiction](#api-de-prédiction)
   - [Services : sécurisation et logging](#services--sécurisation-et-logging)
