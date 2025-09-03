@@ -19,6 +19,7 @@
 - [Tests Unitaires](#tests-unitaires)
   - [Documentation des tests unitaires](#documentation-des-tests-unitaires)
 - [Automatisation DVC/DgasHub/MLFlow](#automatisation-dvcdgashubmlflow)
+- [Monitoring](#monitoring)
 
 # Contexte et Objectifs
  
@@ -778,8 +779,7 @@ make start
 Le service d'authentification est ouvert sur le port 8011:8011.
 Le service d'API est ouvert sur le port 8000:8000.
 
-
-###  Monitoring
+# Monitoring
 
 Intègrer un système de monitoring complet basé sur **Prometheus** et **Node Exporter**, avec exposition des métriques de l'application **FastAPI**.
 
