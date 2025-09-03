@@ -1,7 +1,7 @@
 - [Contexte et Objectifs](#contexte-et-objectifs)
   - [Objectifs et métriques](#objectifs-et-métriques)
 - [Données et Infrastructure](#données-et-infrastructure)
-- [Vous êtes préssés ? Démarrez rapidement ici ! 🚀](#-vous-êtes-préssés--démarrez-rapidement-ici-)
+- [Vous êtes préssés ? Démarrez rapidement ici](#-vous-êtes-préssés--démarrez-rapidement-ici-)
   - [Fichier .env](#fichier-env)
   - [Dépendances](#dépendances)
   - [Configurer un stockage distant avec DVC](#configurer-un-stockage-distant-avec-dvc)
@@ -59,7 +59,7 @@ Les métriques suivantes sont programmées pour mesurer la performance du modèl
 
 ---------
 
-#  Vous êtes préssés ? Démarrez rapidement ici !
+# Vous êtes préssés ? Démarrez rapidement ici
 L'usage exclusif de Docker sur ce projet nous permet d'assurer la reproductibilité. Il est donc primordiale que vous ayez un Docker Engine up.
 Il vous est, tout de même, conseillé de créer un environnement virtuel Python lorsque vous souhaitez lancer ce projet.
 Créez l'environnement virtuel (exemple : `rakuten-project-mlops`) avec les étapes suivantes sur Linux :
