@@ -55,6 +55,7 @@ Ensuite utilisez cet environnement pour toutes les commandes futures.
 Le projet dispose d'un fichier `.env` non versionné contenant les informations nécessaires à son bon fonctionnement. Vous pouvez vous inspirer du fichier `.env.example` pour créer votre fichier `.env`.
  Les informations requises :
 
+```
 TOKENIZER_CONFIG_PATH=`Répertoire et nom du fichier artefact tokenizer format json` </br>
 LSTM_MODEL_PATH=`Répertoire et nom du modèle pré-entraîné lstm format h5` </br>
 VGG16_MODEL_PATH=`Répertoire et nom du modèle pré-entraîné image VGG16 format h5` </br>
@@ -84,6 +85,7 @@ PROJECT_HOST_PATH=`Répertoire absolu de votre projet, requis pour l'usage de l'
 TEST_USER=`Login de l'utilisateur de l'API` </br>
 TEST_USER_FULLNAME=`Nom de l'utilisateur de l'API` </br>
 TEST_USER_PASSWORD=`Mot de passe de l'utilisateur de l'API` </br>
+```
 
 ### Dépendances
 Chaque module de ce projet contient ses dépendances dans un fichier requirements qui lui est propre. Ce projet utilise Git pour gérer le versionnement du code. Il est donc constitué de plusieurs branches. Les données requises pour le développement du modèle (si vous enatrînez le modèle from scratch)  sont versionnées via DVC DagsHub avec option d'enregistrement sur S3. Les étapes suivantes vous montrent comment configurer ces outils. Les étapes suivantes sont effectuées sur le répertoire racine du projet.
