@@ -12,7 +12,7 @@
   - [Structure globale](#structure-globale)
   - [Struture du code des stages : data, train, auth, predict](#struture-du-code-des-stages--data-train-auth-predict)
 - [Détails d'implémentation](#détails-dimplémentation)
-  - [Partie 1 : serving, dockerisation et tests unitaires](#partie-1--serving-dockerisation-et-tests-unitaires)
+  - [Partie 1 : serving, dockerisation et tests unitaires](#serving-dockerisation-et-tests-unitaires)
   - [Conteneurisation](#conteneurisation)
   - [API de prédiction](#api-de-prédiction)
   - [Services : sécurisation et logging](#services--sécurisation-et-logging)
@@ -358,7 +358,7 @@ Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez confi
 ---------
 ## Détails d'implémentation
 
-## Partie 1 : serving, dockerisation et tests unitaires
+## Serving, dockerisation et tests unitaires
 ### Restructuration des répertoires et fichiers
 
 #### data : build
@@ -603,7 +603,7 @@ Chaque test utilise un TestClient pour simuler des requêtes HTTP vers l’appli
 
 ---------
 
-## Automatisation DVC/DgasHub/MLFlow
+## Automatisation Airflow/DVC/DagsHub/MLFlow
 
 A partir de là, nous travaillons exclusvement avec Docker.
 Donc, il faut obligatoirement disposer d'un fichier `.env` à la racine du projet. Exemple de contenu `.env` disponible sur le fichier `.env.example``.
