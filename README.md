@@ -159,6 +159,178 @@ make stop
 Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez configurer ses accès dans le fichier `.env` à travers les paramètres (`TEST_USER,TEST_USER_FULLNAME,TEST_USER_PASSWORD`).
 
 ---------
+## Structure du projet
+
+### Structure globale
+.
+├── LICENSE
+├── Makefile
+├── REAMDME.md
+├── __init__.py
+├── airflow
+│   ├── Dockerfile
+│   ├── config
+│   │   └── airflow.cfg
+│   ├── dags
+│   │   └── ml_pipeline.py
+│   ├── initialize_airflow.sh
+│   ├── logs
+│   │   ├── dag_id=ml_pipeline_dvc
+│   │   └── dag_processor
+│   ├── plugins
+│   └── requirements.txt
+├── data
+│   ├── predictions
+│   │   ├── predictions.json
+│   │   └── predictions.json.dvc
+│   └── raw
+│       ├── X_test_update.csv
+│       ├── X_test_update.csv.dvc
+│       ├── X_train_update.csv
+│       ├── X_train_update.csv.dvc
+│       ├── Y_train_CVw08PX.csv
+│       ├── Y_train_CVw08PX.csv.dvc
+│       ├── __MACOSX
+│       ├── image_test
+│       ├── image_train
+│       └── images_low.zip
+├── docker-compose.yml
+├── image.png
+├── logs
+│   ├── api.log
+│   ├── auth_service_logger.log
+│   ├── import_data_logger.log
+│   ├── lstm_accuracy_curves.png
+│   ├── lstm_loss_curves.png
+│   ├── serving_logger.log
+│   ├── test_model_logger.log
+│   ├── train
+│   ├── train_model_logger.log
+│   ├── validation
+│   ├── vgg16_accuracy_curves.png
+│   └── vgg16_loss_curves.png
+├── mlartifacts
+├── mlruns
+├── models
+│   ├── best_lstm_model.h5
+│   ├── best_lstm_model.h5.dvc
+│   ├── best_vgg16_model.h5
+│   ├── best_vgg16_model.h5.dvc
+│   ├── best_weights.json
+│   ├── best_weights.json.dvc
+│   ├── best_weights.pkl
+│   ├── best_weights.pkl.dvc
+│   ├── concatenate.h5
+│   ├── concatenate.h5.dvc
+│   ├── mapper.json
+│   ├── mapper.json.dvc
+│   ├── mapper.pkl
+│   ├── mapper.pkl.dvc
+│   ├── tokenizer_config.json
+│   └── tokenizer_config.json.dvc
+├── monitoring
+│   ├── grafana
+│   │   ├── Product_Classifier_Monitoring_1756323298849.json
+│   │   ├── fastapi_metrics.json
+│   │   └── provisioning
+│   ├── node_exporter-1.8.1.linux-amd64
+│   │   ├── LICENSE
+│   │   ├── NOTICE
+│   │   └── node_exporter
+│   ├── node_exporter-1.8.1.linux-amd64.tar.gz
+│   └── prometheus
+│       └── prometheus.yml
+├── notebooks
+│   └── Rakuten.ipynb
+├── reports
+│   ├── detailled_pipeline.png
+│   ├── endpoint_up_targets.PNG
+│   ├── grafana_prometheus_data_source.PNG
+│   ├── metriques_graph_prometheus.PNG
+│   ├── mlflow_metrics.png
+│   ├── mlfow_experiment.png
+│   ├── pipeline.png
+│   ├── predict_endpoint_input.png
+│   ├── predict_endpoint_return.png
+│   └── securing_api_authorized.png
+├── requirements.txt
+├── run_compose_options.sh
+├── setup.py
+├── src
+│   ├── __init__.py
+│   ├── auth_service
+│   │   ├── Dockerfile
+│   │   ├── main.py
+│   │   ├── requirements.txt
+│   │   └── security_logic.py
+│   ├── config
+│   ├── data
+│   │   ├── __init__.py
+│   │   └── build_data
+│   ├── features
+│   │   ├── __init__.py
+│   │   └── build_features.py
+│   └── models
+│       ├── __init__.py
+│       ├── predict
+│       ├── serve
+│       └── train
+└── tests
+    ├── __init__.py
+    └── test_api.py
+
+
+### Struture du code des stages : data, train, auth, predict
+
+.
+├── __init__.py
+├── auth_service
+│   ├── Dockerfile
+│   ├── main.py
+│   ├── requirements.txt
+│   └── security_logic.py
+├── config
+├── data
+│   ├── __init__.py
+│   └── build_data
+│       ├── Dockerfile
+│       ├── __init__.py
+│       ├── check_structure.py
+│       ├── import_raw_data.py
+│       ├── make_dataset.py
+│       ├── requirements.txt
+│       └── up.sh
+├── features
+│   ├── __init__.py
+│   └── build_features.py
+└── models
+    ├── __init__.py
+    ├── predict
+    │   ├── Dockerfile
+    │   ├── __init__.py
+    │   ├── predict.py
+    │   ├── requirements.txt
+    │   └── up.sh
+    ├── serve
+    │   ├── Dockerfile
+    │   ├── __init__.py
+    │   ├── auth_utils.py
+    │   ├── predict_logic.py
+    │   ├── requirements.txt
+    │   ├── serve_model_fastapi.py
+    │   ├── serve_model_fastapi_old.py
+    │   └── up.sh
+    └── train
+        ├── Dockerfile
+        ├── __init__.py
+        ├── main.py
+        ├── requirements.txt
+        ├── train_model.py
+        └── up.sh
+
+
+
+---------
 ## Détails d'implémentation
 
 ## Partie 1 : serving, dockerisation et tests unitaires
