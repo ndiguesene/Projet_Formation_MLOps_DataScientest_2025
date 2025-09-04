@@ -80,6 +80,14 @@ git clone https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_202
 cd Projet_Formation_MLOps_DataScientest_2025 
 ```
 
+### Usage du chemin absolu du projet
+L'usage de `DockerOperator` au sein de Airflow, nous a amené à effectuer un choix pour la création de volumes montés Docker. 
+De ce fait, une variable sur le fichier `.env` (présenté ci-après) permet de renseigner cette information.
+
+```yaml
+PROJECT_HOST_PATH=`Répertoire absolu de votre projet, requis pour l'usage de l'opérateur Airflow DockerOperator`
+```
+
 ### Fichier .env
 Le projet dispose d'un fichier `.env` non versionné contenant les informations nécessaires à son bon fonctionnement. Vous pouvez vous inspirer du fichier `.env.example` pour créer votre fichier `.env`.
 Les informations requises :
