@@ -69,6 +69,17 @@ conda activate Rakuten-project
 
 Ensuite utilisez cet environnement pour toutes les commandes futures.
 
+### Cloner le projet
+
+```bash
+git clone https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025.git
+```
+
+### Se déplacer dans le répertoire obtenu après clone
+```bash
+cd Projet_Formation_MLOps_DataScientest_2025 
+```
+
 ### Fichier .env
 Le projet dispose d'un fichier `.env` non versionné contenant les informations nécessaires à son bon fonctionnement. Vous pouvez vous inspirer du fichier `.env.example` pour créer votre fichier `.env`.
 Les informations requises :
