@@ -31,11 +31,6 @@ Nous mettons en place une pipeline MLOps pour permettre l'automatisation, la sca
 
 Dans ce projet, nous entraînons un modèle multimodal utilisant deux modèles `VGG16` et `LSTM` déjà existants et versionnés sur DasgHub. Il vous faudra donc les récupérer.
 
-Les métriques suivantes sont programmées pour mesurer la performance du modèle et du pipeline MLOps:
-         5. Accuracy : Évaluer la proportion de bonnes prédictions 
-         6. F1-score : Prendre en compte le déséquilibre des classes 
-         7. Temps d’inférence : Mesurer la rapidité des prédictions du modèle
-
 ## Données et Infrastructure
 1. **Sources des données** : stockés dans HuggingFace: https://huggingface.co/datasets/ndiguesene/ml-datasets-image-rakuten-ecommerce/resolve/main/
       - Données textuelles (~60 MB)
@@ -49,7 +44,7 @@ Les métriques suivantes sont programmées pour mesurer la performance du modèl
 4. **Industrialisation avec MLOps**
    1. **Gestion du versionnement des modèles** : MLflow
    2. **Versionnage des données, des métriques et artefacts** : DVC et DagsHub 
-   3. **Orchestration** : Airflow
+   3. **Orchestration** : Airflow via Docker Compose
    4. **Monitoring & Observabilité** : Prometheus, Grafana
 5. **Déploiement et Scalabilité**
    1. **Mode de déploiement** : Batch (REST API)
