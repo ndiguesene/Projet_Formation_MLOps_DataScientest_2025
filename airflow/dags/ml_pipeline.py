@@ -64,6 +64,73 @@ with DAG(
         build_image_fetch_data >> fetch_data >> push_input_data
 
 
+    with TaskGroup("training_stage") as training_stage:
+        # -*- we are training the model using the training service container -*-. Note: The DockerOperator is used to run the container that trains the model.
+        create_model_training_image = BashOperator(
+            task_id="create_model_training_image",
+            bash_command="""
+        
+                cd /opt/airflow/mlops-project && \
+                docker build -f ./src/models/train/Dockerfile -t training_service .
+ 
+            """
+        )
+
+    # -*- we are creating the actual container to train the model -*-. Note: The DockerOperator is used to run the container that trains the model.
+    # -*- under the hood, the trained model and his artifacts are pushed to MLflow in Dagshub remote storage -*-.
+        train_model = DockerOperator(
+            task_id="train_model",
+            image="training_service",
+            container_name="training_service_container",
+            api_version="auto",
+            environment={
+                "DATA_PATH": os.getenv("DATA_PATH"),
+                "TRAIN_MODEL_LOGGER_PATH": os.getenv("TRAIN_MODEL_LOGGER_PATH"),
+                "TOKENIZER_CONFIG_PATH": os.getenv("TOKENIZER_CONFIG_PATH"),
+                "LSTM_MODEL_PATH" : os.getenv("LSTM_MODEL_PATH"),
+                "VGG16_MODEL_PATH" : os.getenv("VGG16_MODEL_PATH"),
+                "BEST_WEIGHTS_PATH_PKL" : os.getenv("BEST_WEIGHTS_PATH_PKL"),
+                "IMAGES_PATH":os.getenv("IMAGES_PATH"),
+                "CONCATENATED_MODEL_PATH": os.getenv("CONCATENATED_MODEL_PATH"),
+                "MAPPER_PATH": os.getenv("MAPPER_PATH"),
+                "BEST_WEIGHTS_PATH" : os.getenv("BEST_WEIGHTS_PATH"),
+                "MLFLOW_TRACKING_URI" : os.getenv("MLFLOW_TRACKING_URI"),
+                "MLFLOW_EXPERIMENT_NAME": os.getenv("MLFLOW_EXPERIMENT_NAME"),
+                "DAGSHUB_USERNAME":os.getenv("DAGSHUB_USERNAME"),
+                "DAGSHUB_TOKEN":os.getenv("DAGSHUB_TOKEN"),
+                "PYTHONUNBUFFERED": 1
+            },
+            mounts=[Mount(
+                source=os.getenv("PROJECT_HOST_PATH"),
+                target='/app',
+                type='bind'
+            )
+            ],
+            docker_url="unix://var/run/docker.sock",
+            auto_remove='success'
+        )
+
+    # -*- we are pushing the model artifacts to DVC remote -*-. Note: The BashOperator is used to run the commands that push the model artifacts to DVC remote.
+        push_model_artifacts = BashOperator(
+            task_id="push_model_artifacts",
+            bash_command="""
+ 
+                cd /opt/airflow/mlops-project && \
+        
+                # Versionner les artefacts produits
+                dvc add models/*.h5 && \
+        
+                dvc add models/*.pkl && \
+                dvc add models/*.json && \
+ 
+               # Pousser vers DVC remote
+               git add models/*.dvc && \
+               dvc push
+ 
+            """
+        )
+        create_model_training_image >> train_model >> push_model_artifacts
+
     with TaskGroup("prediction_stage") as prediction_stage:
         
     # -*- we are creating the image to run a test on the model -*-. Note: The BashOperator is used to run the commands that build the image for the prediction service.
@@ -184,8 +251,7 @@ with DAG(
 
         create_auth_image >> start_auth >> create_serving_image >> start_serving_service
 
-#    data_stage >> training_stage >> prediction_stage >> serving_stage
-    data_stage >> prediction_stage >> serving_stage
+    data_stage >> training_stage >> prediction_stage >> serving_stage
 
 #build_image_fetch_data >> fetch_data >> push_input_data >> create_model_training_image >> train_model >> push_model_artifacts >> create_prediction_image >> run_prediction >> push_prediction_results >> create_auth_image >> start_auth >> create_serving_image >> start_serving_service
 #>> create_model_training_image >> train_model >> push_model_artifacts >> create_prediction_image >> run_prediction >> push_prediction_results >> create_auth_image >> start_auth >> create_serving_image >> start_serving_service

@@ -34,13 +34,14 @@ def get_password_hash(password):
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
     return hashed_password.decode('utf-8')
 
+username = os.getenv("TEST_USER", "data_engineer")
 # Mock user database
 fake_users_db = {
-    "data_engineer": {
-        "username": "data_engineer",
-        "full_name": "Data Engineer",
+    username: {
+        "username": os.getenv("TEST_USER", "data_engineer"),
+        "full_name": os.getenv("TEST_USER_FULLNAME", "Data Engineer"),
         "email": "rakuten@example.com",
-        "hashed_password": get_password_hash("43SoYourAreADataEngineer34"),
+        "hashed_password": get_password_hash(os.getenv("TEST_USER_PASSWORD", "43SoYourAreADataEngineer34")),
         "disabled": False,
     }
 }

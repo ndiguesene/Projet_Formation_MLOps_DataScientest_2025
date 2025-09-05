@@ -1,6 +1,7 @@
 FROM python:3.10-slim
   
-RUN apt-get update && apt-get install python3-pip -y python3-dev
+RUN apt-get update && apt-get install python3-pip -y python3-dev && rm -rf /var/lib/apt/lists/* 
+# Clean up apt cache to reduce image size
 
 # Set the working directory
 WORKDIR /app
