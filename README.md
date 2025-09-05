@@ -2,6 +2,8 @@
   - [Objectifs et métriques](#objectifs-et-métriques)
   - [Données et Infrastructure](#données-et-infrastructure)
 - [Vous êtes préssés ? Démarrez rapidement ici](#vous-%C3%AAtes-pr%C3%A9ss%C3%A9s--d%C3%A9marrez-rapidement-ici)
+  - [Cloner le projet](#cloner-le-projet)
+  - [Usage du chemin absolu du projet](#usage-du-chemin-absolu-du-projet)
   - [Fichier .env](#fichier-env)
   - [Dépendances](#dépendances)
   - [Configurer un stockage distant avec DVC](#configurer-un-stockage-distant-avec-dvc)
@@ -9,6 +11,7 @@
   - [Créer le réseau Docker](#créer-le-réseau-docker)
   - [Lancer la pipeline Airflow](#lancer-la-pipeline-airflow)
   - [Comment tester les endpoints](#comment-tester-les-endpoints)
+- [Erreurs connues](#erreurs-connues)
 - [Structure du projet](#structure-du-projet)
   - [Structure globale](#structure-globale)
   - [Struture du code des stages : data, train, auth, predict](#struture-du-code-des-stages--data-train-auth-predict)
@@ -73,15 +76,12 @@ Ensuite utilisez cet environnement pour toutes les commandes futures.
 
 ```bash
 git clone https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025.git
-```
 
-### Se déplacer dans le répertoire obtenu après clone
-```bash
 cd Projet_Formation_MLOps_DataScientest_2025 
 ```
 
 ### Usage du chemin absolu du projet
-L'usage de `DockerOperator` au sein de Airflow, nous a amené à effectuer un choix pour la création de volumes montés Docker. 
+L'usage de `DockerOperator` au sein de Airflow, nous a amené à effectuer un choix pour la création de volumes montés Docker. Nous renseignons donc le chemin absolu du répertoire du projet, dans cette version.
 De ce fait, une variable sur le fichier `.env` (présenté ci-après) permet de renseigner cette information.
 
 ```yaml
@@ -93,26 +93,26 @@ Le projet dispose d'un fichier `.env` non versionné contenant les informations 
 Les informations requises :
 
 ```
-TOKENIZER_CONFIG_PATH=`Répertoire et nom du fichier artefact tokenizer format json`
-LSTM_MODEL_PATH=`Répertoire et nom du modèle pré-entraîné lstm format h5` 
-VGG16_MODEL_PATH=`Répertoire et nom du modèle pré-entraîné image VGG16 format h5`
-BEST_WEIGHTS_PATH=`Répertoire et nom du fichier d'artefacts des poids précalculés format json` 
-BEST_WEIGHTS_PATH_PKL=`Répertoire et nom du fichier d'artefacts des poids précalculés format pickle` 
-MAPPER_PATH=`Répertoire et nom du fichier d'artefacts mapper sous format json` 
-MAPPER_PATH_PKL=`Répertoire et nom du fichier d'artefacts mapper sous format pickle`
-DATASET_PATH=`Répertoire d'enregistrement des données textuelles d'entraînement de test, doit être dans $DATA_PATH`
-DATA_PATH=`Répertoire d'enregistrement des données d'entraînement`
-IMAGES_PATH=`Répertoire d'enregistrement des images d'entraînement de test, doit être dans $DATA_PATH`
-PREDICTIONS_PATH=`Répertoire d'enregistrement des prédictions test effectués après entrainement`
-CONCATENATED_MODEL_PATH=`Répertoire d'enregistrement du modèle concaténé`
-SERVING_LOGGER_PATH=`Répertoire et nom du fichier de logs de l'API dans le conteneur`
+TOKENIZER_CONFIG_PATH=/app/models/tokenizer_config.json
+LSTM_MODEL_PATH=/app/models/best_lstm_model.h5 
+VGG16_MODEL_PATH=/app/models/best_vgg16_model.h5
+BEST_WEIGHTS_PATH=/app/models/best_weights.json
+BEST_WEIGHTS_PATH_PKL=/app/models/best_weights.pkl
+MAPPER_PATH=/app/models/mapper.json
+MAPPER_PATH_PKL=/app/models/mapper.pkl
+DATASET_PATH=/app/data/raw/X_train_update.csv
+DATA_PATH=/app/data/raw
+IMAGES_PATH=/app/data/raw/images/image_train
+PREDICTIONS_PATH=/app/data/predictions/predictions.json
+CONCATENATED_MODEL_PATH=/app/models/concatenate.h5
+SERVING_LOGGER_PATH=/app/logs/serving_logger.log
 SECRET_KEY=`Clé secrete utilisée pour le hachage`
 ALGORITHM=`Algorithme de hachage pour génération toke JWT, défaut HS256`
 ACCESS_TOKEN_EXPIRE_MINUTES=`Délai d'expiration du token JWT, défaut 30 minutes`
-TEST_MODEL_LOGGER_PATH=`Répertoire et nom du fichier de logs de test du modèle dans le conteneur`
-TRAIN_MODEL_LOGGER_PATH=`Répertoire et nom du fichier de logs d'entraînement dans le conteneur`
-IMPORT_DATA_LOGGER_PATH=`Répertoire et nom du fichier de logs dans le conteneur`
-AUTH_SERVICE_LOGGER_PATH=`Répertoire et nom du fichier de logs dans le conteneur`
+TEST_MODEL_LOGGER_PATH=/app/logs/test_model_logger.log
+TRAIN_MODEL_LOGGER_PATH=/app/logs/train_model_logger.log
+IMPORT_DATA_LOGGER_PATH=/app/logs/import_data_logger.log
+AUTH_SERVICE_LOGGER_PATH=/app/logs/auth_service_logger.log
 MLFLOW_TRACKING_URI=https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025.mlflow
 MLFLOW_EXPERIMENT_NAME=ProductCodeClassifier
 DAGSHUB_USERNAME=`Votre identifiant DagsHub`
@@ -128,7 +128,7 @@ TEST_USER_PASSWORD=`Mot de passe de l'utilisateur de l'API`
 Chaque module de ce projet contient ses dépendances dans un fichier requirements qui lui est propre. Ce projet utilise Git pour gérer le versionnement du code. Il est donc constitué de plusieurs branches. Les données requises pour le développement du modèle (si vous entraînez le modèle from scratch)  sont versionnées via DVC DagsHub avec option d'enregistrement sur S3. Les étapes suivantes vous montrent comment configurer ces outils. Les étapes suivantes sont effectuées sur le répertoire racine du projet.
 
 ### Configurer un stockage distant avec DVC
-Nous utilisons **S3 d’AWS** pour sauvegarder les données. Pour cela, il faut d'abord installer S3 à l’aide de la commande suivante :
+Nous utilisons **S3 d’AWS** pour sauvegarder les données. Pour cela, il faut d'abord installer avec le support de S3 à l’aide de la commande suivante :
  
 ```bash
 pip install "dvc[S3]"
@@ -165,10 +165,10 @@ Votre fichier `.dvc/config`(créé sur initialisation de dvc sur le répertoire 
     endpointurl = https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025.s3
 ```
 
-### Récupérer les artefacts et modèles et données déjà existants
+### Récupérer les artefacts, modèles et données déjà existants
 `Attention`, cette étape est très importante. Sans elle, vous ne pouvez avoir les artefacts et les modèles pour poursuivre le traitement.
 Dans ce projet, nous entraînons un modèle multimodal utilisant deux modèles VGG16 et LSTM déjà existants et versionnés sur DasgHub. Il vous faudra donc les récupérer.
-Vous pouvez récupéree les données lorsque vous souhaitez réentraîner le modèle.
+Vous pouvez récupérer les données lorsque vous souhaitez réentraîner le modèle.
 
 ```bash
 dvc pull
@@ -184,7 +184,7 @@ Pour éviter cette situation, nous vous suggérons de créer en amont un réseau
 docker network create -d bridge product_classier
 ```
 
-`Attention` : si vous modifiez le nom du réseau docker, vous devez le mettre à jour sur le fichier `docker-compose.yml` mais également sur les operators airflow qui lancent les services d'authentification et de l'API fichier `airflow/dags/ml_pipeline.py`.
+`Attention` : si vous modifiez le nom du réseau docker, vous devez le mettre à jour sur le fichier `docker-compose.yml` mais également sur les operators airflow qui lancent les services d'authentification et de l'API (fichier `airflow/dags/ml_pipeline.py`).
 
 
 ### Lancer la pipeline Airflow
@@ -208,6 +208,23 @@ make stop
 
 ### Comment tester les endpoints
 Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez configurer ses accès dans le fichier `.env` à travers les paramètres (`TEST_USER,TEST_USER_FULLNAME,TEST_USER_PASSWORD`).
+- Accédez à `http:localhost:8000`
+- Obtenez un token via le endpoint `/token` en renseigant les credentials de l'utilisateur
+- Vous y êtes ! Vous pouvez tester le endpoint de prédiction `/predict` pour avoir la clasification d'un produit en renseigant le token obtenu précédement
+
+---------
+## Erreurs connues
+
+**Stage `Fetch Data` sur Apple Sillicon : erreurs connexion au repositories Debian**
+
+```log
+[2025-09-05, 07:01:42] INFO - Err:121 http://deb.debian.org/debian bookworm/main arm64 zlib1g-dev arm64 1:1.2.13.dfsg-1: source="airflow.task.hooks.airflow.providers.standard.hooks.subprocess.SubprocessHook"
+[2025-09-05, 07:01:42] INFO -   Unable to connect to deb.debian.org:http: [IP: 151.101.134.132 80]: source="airflow.task.hooks.airflow.providers.standard.hooks.subprocess.SubprocessHook"
+```
+
+`Root causes potentielles`: les commandes `apt-get update apt-get install` sont lancées pendant la création de l'image. Les serveurs Debian sont temporairement non accessibles ou bloqués. Cette erreur a été remarquée sur Apple Silicon Mac (ARM64).
+
+`Solutions` : dans l'immédiat, redémarrer le stage pour relancer la reconstruction de l'image.
 
 ---------
 ## Structure du projet
