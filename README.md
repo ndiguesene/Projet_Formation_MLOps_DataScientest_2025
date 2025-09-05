@@ -134,20 +134,6 @@ Nous utilisons **S3 d’AWS** pour sauvegarder les données. Pour cela, il faut 
 pip install "dvc[S3]"
 ```
 
-**Initialiser DVC dans le projet**
-
-```bash
-  dvc init
-```
-
-**Configurer DagsHub comme stockage distant** 
-Une fois le support de S3 installé, il faudra mettre à jour le fichier de configuration `.dvc/config` pour ajouter DagsHub comme votre stockage distant. Les commandes à suivre sont les suivantes : 
-
-```bash
-dvc remote add origin s3://dvc
-dvc remote modify origin endpointurl https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025.s3
-
-```
 Ici, `votre_token(*)` est à récupérer sur l'interface de DagsHub. Il sera par ailleurs utilisé dans votre pipeline Airflow pour pousser les données automatiquement vers DVC.
 
 ```bash

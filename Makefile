@@ -1,7 +1,6 @@
 # First launch of Airflow
 init-airflow: 
 	mkdir -p ./airflow/dags ./airflow/logs ./airflow/plugins ./airflow/config
-	echo -e "AIRFLOW_UID=$(id -u)" >> .env
 	docker compose up airflow-init
 
 start:
