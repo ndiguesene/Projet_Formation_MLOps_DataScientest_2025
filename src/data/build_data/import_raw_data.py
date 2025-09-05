@@ -70,7 +70,7 @@ FILES = [
     "X_test_update.csv",
     "X_train_update.csv",
     "Y_train_CVw08PX.csv",
-    "images_low.zip",
+    "images.zip",
 ]
 
 # Load environment variables from .env file
