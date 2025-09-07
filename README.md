@@ -105,7 +105,7 @@ DATA_PATH=/app/data/raw
 IMAGES_PATH=/app/data/raw/images/image_train
 PREDICTIONS_PATH=/app/data/predictions/predictions.json
 CONCATENATED_MODEL_PATH=/app/models/concatenate.h5
-SERVING_LOGGER_PATH=/app/logs/serving_logger.log
+SERVING_LOGGER_PATH=/app/logs/api.log
 SECRET_KEY=`Clé secrete utilisée pour le hachage`
 ALGORITHM=`Algorithme de hachage pour génération toke JWT, défaut HS256`
 ACCESS_TOKEN_EXPIRE_MINUTES=`Délai d'expiration du token JWT, défaut 30 minutes`
@@ -552,7 +552,7 @@ Cette partie de la documentation décrit les tests unitaires définis pour l’A
 Installer les dépendances :
 
 ```bash
-  pip install fastapi uvicorn pytest httpx
+  pip install fastapi uvicorn pytest httpx slowapi
 ```
 
 ## Lancer les tests
