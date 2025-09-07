@@ -537,13 +537,13 @@ Exemple retours :
 ## Tests Unitaires
 ## Documentation des tests unitaires
 
-Cette partie de la documentation décrit les tests unitaires définis pour l’API FastAPI. Ils couvrent les trois endpoints principaux : racine (`/`), `GET /status` et `POST /predict`.
+Cette partie de la documentation décrit les tests unitaires définis pour l’API FastAPI. Ils couvrent les trois endpoints principaux : `GET /status` et `POST /predict`.
 
 ---
 
 ## Prérequis
 
-- Python 3.9
+- Python 3.10
 - FastAPI
 - Uvicorn (pour lancer l’API si besoin)
 - pytest
@@ -552,22 +552,27 @@ Cette partie de la documentation décrit les tests unitaires définis pour l’A
 Installer les dépendances :
 
 ```bash
-  pip install fastapi uvicorn pytest httpx slowapi
+  pip install fastapi uvicorn pytest>=7.0 httpx slowapi prometheus-fastapi-instrumentator numpy Pillow==10.0.0
+
 ```
+
+ou installer le fichier requirements.txt.
 
 ## Lancer les tests
 
 Depuis la racine du projet (là où se trouve src/ et tests/), exécuter :
 
 ```bash
-   pytest tests/test_api.py
+   export PYTHONPATH=$(pwd)
+   pytest
 ```
+
 ## Structure des tests
 
-Le fichier tests/test_api.py contient trois fonctions :
+Le fichier tests/test_api.py contient deux fonctions :
 ```python
 from fastapi.testclient import TestClient
-from Projet_Formation_MLOps_DataScientest_2025.api import app
+from src.models.serve.serve_model_fastapi import app
 
 client = TestClient(app)
 ```
@@ -580,7 +585,7 @@ Chaque test utilise un TestClient pour simuler des requêtes HTTP vers l’appli
       def test_status():
           response = client.get("/status")
           assert response.status_code == 200
-          assert response.json() == {"status": "L'API fonctionne correctement"}
+          assert response.json() == {"message": "Model Serving via FastAPI is running !"}
       ```
    3. Requête : 
    ```http request
@@ -588,49 +593,32 @@ Chaque test utilise un TestClient pour simuler des requêtes HTTP vers l’appli
    ```
    4. Assertions :
       - `response.status_code == 200`
-      - `response.json() == {"status": "L'API fonctionne correctement"}`
+      - `response.json() == {"message": "Model Serving via FastAPI is running !"}`
 
-   2. **test_root**
-      3. Objectif : valider que la racine / renvoie un message de bienvenue.
-      4. script
-      ```python
-      def test_root():
-          response = client.get("/")
-          assert response.status_code == 200
-          data = response.json()
-          assert "message" in data
-          assert "Bienvenue" in data["message"]
-         ```
-      4. Requête :
-      ```http request
-      GET /
-      ```
-      5. Assertions
-         - `response.status_code == 200`
-         - `Le corps JSON contient une clé message`
-         - `La chaîne "Bienvenue" apparaît dans la valeur de message`
+2. **test_predict**
+   1. Objectif : s’assurer que l’endpoint POST /predict accepte un payload JSON arbitraire et retourne un JSON avec les clés `predictions` et `message`. Pour les besoins de test, une image simple est créée. Les éléments du modèle sont également mockés : tokenizer, lstm, vgg16, weights, mapper ainsi que la récupération du token.
 
-3. **test_predict**
-   4. Objectif : s’assurer que l’endpoint POST /predict accepte un payload JSON arbitraire et retourne un JSON avec les clés predicted et label.
-   5. script
+   2. Script
    ```python
    def test_predict():
-       sample_text = {"predicted": "1", "label": "label_1"}
-       response = client.post("/predict", json=sample_text)
-       assert response.status_code == 200
-       data = response.json()
-       assert "predicted" in data
-       assert "label" in data
+
+       files = {"image": ("test.jpg", img_buffer.getvalue(), "image/jpeg")}
+        data = {
+            "product_identifier": "id1",
+            "designation": "laptop computer",
+            "description": "gaming laptop with good specs", 
+            "product_id": "pid123",
+            "imageid": "img123"
+        }
+        
+        response = client.post("/predict", data=data, files=files)
+        #...
+        assert "predictions" in resp_json
    ```
-   5. Requête :
-   ```http request
-   POST /predict
-   Content-Type: application/json
-   {"predicted": "1", "label": "label_1"}
-   ```
-   6. Assertions :
-    - response.status_code == 200 
-    - La réponse JSON contient les champs predicted et label
+
+   3. Assertions :
+    - Le code de retour est `200` 
+    - La réponse JSON contient le champ `predictions`
 
 ---------
 
