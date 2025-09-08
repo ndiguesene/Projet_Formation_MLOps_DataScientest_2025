@@ -93,8 +93,9 @@ Le projet dispose d'un fichier `.env` non versionné contenant les informations 
 Les informations requises :
 
 ```
+# Chemins modèles et artefacts
 TOKENIZER_CONFIG_PATH=/app/models/tokenizer_config.json
-LSTM_MODEL_PATH=/app/models/best_lstm_model.h5 
+LSTM_MODEL_PATH=/app/models/best_lstm_model.h5
 VGG16_MODEL_PATH=/app/models/best_vgg16_model.h5
 BEST_WEIGHTS_PATH=/app/models/best_weights.json
 BEST_WEIGHTS_PATH_PKL=/app/models/best_weights.pkl
@@ -105,23 +106,31 @@ DATA_PATH=/app/data/raw
 IMAGES_PATH=/app/data/raw/images/image_train
 PREDICTIONS_PATH=/app/data/predictions/predictions.json
 CONCATENATED_MODEL_PATH=/app/models/concatenate.h5
+ 
+# Logs
 SERVING_LOGGER_PATH=/app/logs/api.log
-SECRET_KEY=`Clé secrete utilisée pour le hachage`
-ALGORITHM=`Algorithme de hachage pour génération toke JWT, défaut HS256`
-ACCESS_TOKEN_EXPIRE_MINUTES=`Délai d'expiration du token JWT, défaut 30 minutes`
 TEST_MODEL_LOGGER_PATH=/app/logs/test_model_logger.log
 TRAIN_MODEL_LOGGER_PATH=/app/logs/train_model_logger.log
 IMPORT_DATA_LOGGER_PATH=/app/logs/import_data_logger.log
 AUTH_SERVICE_LOGGER_PATH=/app/logs/auth_service_logger.log
+ 
+# Authentification
+SECRET_KEY=`Votre clé secrète`
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+TEST_USER=`Login de l'utilisateur de l'API`
+TEST_USER_FULLNAME=`Nom utilisateur`
+TEST_USER_PASSWORD=`Mot de passe de l'utilisateur de l'API`
+ 
+# MLflow et DagsHub
 MLFLOW_TRACKING_URI=https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025.mlflow
 MLFLOW_EXPERIMENT_NAME=ProductCodeClassifier
 DAGSHUB_USERNAME=`Votre identifiant DagsHub`
 DAGSHUB_TOKEN=`Votre token DagsHub`
+
+# Airflow
 AIRFLOW_UID=0
-PROJECT_HOST_PATH=`Répertoire absolu de votre projet, requis pour l'usage de l'opérateur Airflow DockerOperator`
-TEST_USER=`Login de l'utilisateur de l'API`
-TEST_USER_FULLNAME=`Nom de l'utilisateur de l'API`
-TEST_USER_PASSWORD=`Mot de passe de l'utilisateur de l'API`
+PROJECT_HOST_PATH=`Répertoire absolu du projet, requis pour DockerOperator`
 ```
 
 ### Dépendances

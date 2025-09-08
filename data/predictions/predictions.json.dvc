@@ -1,5 +1,5 @@
 outs:
-- md5: 0303fefa2a930aaf71f0dc8c2f8791ea
-  size: 152
+- md5: be5ff2a842e9944f83210471500fec53
+  size: 150
   hash: md5
   path: predictions.json
