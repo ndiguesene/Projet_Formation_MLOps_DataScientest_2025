@@ -900,32 +900,16 @@ http://localhost:8000/metrics
 ```
 
 
-```bash
-http://http://localhost:9100
-```
-
 ## 6. Métriques collectées (exemple) :
 - `http_requests_total{job="fastapi"}` — nombre de requêtes HTTP par endpoint, méthode, code
 - `process_cpu_seconds_total` — temps CPU utilisé
 - `node_memory_Active_bytes` — RAM active
 
 ### → Installer et configurer Grafana, le connecter à Prometheus et visualiser les métriques (FastAPI, Node Exporter) avec des dashboards.
-Étape 1 : Lancer Grafana avec Docker
 
-``` bash
-docker run -d \
-  -p 3000:3000 \
-  --name=grafana \
-  grafana/grafana
+**Étape 1** : Aller sur le lien du Dashboard Grafana `http://localhost:3000`. Le mot de passe de l'utilisateur admin est à mettre à jour à la première connection.
 
-```
-Demarrer grafana si déja crée
-``` bash
-docker start grafana
-docker restart grafana
-
-```
-Étape 2 : Ajouter Prometheus comme source de données
+**Étape 2** : Ajouter Prometheus comme source de données
 Accèdez à Grafana : http://localhost:3000
 Menu latéral gauche → ⚙️ Configuration → Data Sources
 Cliquez sur `Add data source`
@@ -938,8 +922,9 @@ Dans le champ URL, mettez :http://prometheus:9090
 Next, you can start to visualize data by building a dashboard, or by querying data in the Explore view.
 ```
 
-Étape 3 : Importer un Dashboard Node Exporter + FastAPI
-🔹 Option A : Dashboard Node Exporter (prêt à l’emploi)
-Menu gauche → 📊 Dashboards → New Dashboards → ADD visualisation → choisir la source de données prometheus 
-Menu gauche → 📊 Dashboards → New Dashboards → ADD visualisation → choisir la source de données prometheus → 
+**Étape 3** : Importer un Dashboard Node Exporter + FastAPI
+Utilisez le dashboard sous pour visualiser les métriques de monitoring suivis. Le fichier est disponible sous `monitoring/grafana/Product Classifier Monitoring-1757334457707.json`.
+
+![Dashboard Grafana](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/master/reports/dashboard_grafana.png)
+
 
