@@ -899,11 +899,12 @@ http://localhost:8000/metrics
 
 ```
 
-
 ## 6. Métriques collectées (exemple) :
-- `http_requests_total{job="fastapi"}` — nombre de requêtes HTTP par endpoint, méthode, code
-- `process_cpu_seconds_total` — temps CPU utilisé
-- `node_memory_Active_bytes` — RAM active
+- Durées moyenne des requêtes http sur tous les endpoints (/token, /metrics(prometheus), /status et /predict)
+- Durée moyenne des requêtes http à succès sur le endpoint de prédiction(code retour : 2XX)
+- Requêtes http non authorisées sur le endpoint de prédiction (code retour : 4XX)
+- Requêtes http en échecs sur le endpoint de prédiction (code retour 5XX)
+- Requêtes http non authorisées sur le endpoint /token (code retour 4XX)
 
 ### → Installer et configurer Grafana, le connecter à Prometheus et visualiser les métriques (FastAPI, Node Exporter) avec des dashboards.
 
