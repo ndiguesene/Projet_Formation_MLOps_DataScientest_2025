@@ -229,7 +229,7 @@ Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez confi
 .
 ├── LICENSE
 ├── Makefile
-├── REAMDME.md
+├── README.md
 ├── __init__.py
 ├── airflow
 │   ├── Dockerfile
@@ -255,9 +255,8 @@ Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez confi
 │       ├── Y_train_CVw08PX.csv
 │       ├── Y_train_CVw08PX.csv.dvc
 │       ├── __MACOSX
-│       ├── image_test
-│       ├── image_train
-│       └── images_low.zip
+│       ├── images
+│       └── images.zip
 ├── docker-compose.yml
 ├── image.png
 ├── logs
@@ -269,8 +268,14 @@ Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez confi
 │   ├── serving_logger.log
 │   ├── test_model_logger.log
 │   ├── train
+│   │   ├── events.out.tfevents.1757284873.cdcc36909964.1.0.v2
+│   │   ├── events.out.tfevents.1757286505.b2faa36ce2ef.1.0.v2
+│   │   └── events.out.tfevents.1757286530.b2faa36ce2ef.1.2.v2
 │   ├── train_model_logger.log
 │   ├── validation
+│   │   ├── events.out.tfevents.1757284881.cdcc36909964.1.1.v2
+│   │   ├── events.out.tfevents.1757286515.b2faa36ce2ef.1.1.v2
+│   │   └── events.out.tfevents.1757287821.b2faa36ce2ef.1.3.v2
 │   ├── vgg16_accuracy_curves.png
 │   └── vgg16_loss_curves.png
 ├── mlartifacts
@@ -341,7 +346,7 @@ Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez confi
 │       └── train
 └── tests
     ├── __init__.py
-    └── test_api.py
+    └── api_test.py
 ```
 
 ### Struture du code des stages : data, train, auth, predict
