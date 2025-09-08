@@ -1,6 +1,7 @@
 - [Contexte et Objectifs](#contexte-et-objectifs)
   - [Objectifs et métriques](#objectifs-et-métriques)
   - [Données et Infrastructure](#données-et-infrastructure)
+  - [Architecture](#architecture)
 - [Vous êtes préssés ? Démarrez rapidement ici](#vous-%C3%AAtes-pr%C3%A9ss%C3%A9s--d%C3%A9marrez-rapidement-ici)
   - [Cloner le projet](#cloner-le-projet)
   - [Usage du chemin absolu du projet](#usage-du-chemin-absolu-du-projet)
@@ -56,6 +57,10 @@ Dans ce projet, nous entraînons un modèle multimodal utilisant deux modèles `
 6. **Sécurité et Gouvernance**
    1. Routes d'API sécurisées via l'usage du Json Web Token (JWT)
 
+
+## Architecture
+
+![Architecture Globale](https://github.com/ndiguesene/Projet_Formation_MLOps_DataScientest_2025/blob/master/reports/Architecture.png)
 
 ---------
 
@@ -514,7 +519,7 @@ L'inclusion des identifiants des requêtes et des temps de traitement facilite l
 - `import_data_logger.log`
 - `train_model_logger.log`
 - `test_model_logger.log`
-- `serving_logger.log`
+- `api.log`
 
 Nous avons inclu un (RotateFileHandler) pour gérer la limitation de la taille des fichiers de logs.
 
