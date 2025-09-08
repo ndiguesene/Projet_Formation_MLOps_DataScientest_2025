@@ -93,8 +93,9 @@ Le projet dispose d'un fichier `.env` non versionné contenant les informations 
 Les informations requises :
 
 ```
+# Chemins modèles et artefacts
 TOKENIZER_CONFIG_PATH=/app/models/tokenizer_config.json
-LSTM_MODEL_PATH=/app/models/best_lstm_model.h5 
+LSTM_MODEL_PATH=/app/models/best_lstm_model.h5
 VGG16_MODEL_PATH=/app/models/best_vgg16_model.h5
 BEST_WEIGHTS_PATH=/app/models/best_weights.json
 BEST_WEIGHTS_PATH_PKL=/app/models/best_weights.pkl
@@ -105,23 +106,31 @@ DATA_PATH=/app/data/raw
 IMAGES_PATH=/app/data/raw/images/image_train
 PREDICTIONS_PATH=/app/data/predictions/predictions.json
 CONCATENATED_MODEL_PATH=/app/models/concatenate.h5
-SERVING_LOGGER_PATH=/app/logs/serving_logger.log
-SECRET_KEY=`Clé secrete utilisée pour le hachage`
-ALGORITHM=`Algorithme de hachage pour génération toke JWT, défaut HS256`
-ACCESS_TOKEN_EXPIRE_MINUTES=`Délai d'expiration du token JWT, défaut 30 minutes`
+ 
+# Logs
+SERVING_LOGGER_PATH=/app/logs/api.log
 TEST_MODEL_LOGGER_PATH=/app/logs/test_model_logger.log
 TRAIN_MODEL_LOGGER_PATH=/app/logs/train_model_logger.log
 IMPORT_DATA_LOGGER_PATH=/app/logs/import_data_logger.log
 AUTH_SERVICE_LOGGER_PATH=/app/logs/auth_service_logger.log
+ 
+# Authentification
+SECRET_KEY=`Votre clé secrète`
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+TEST_USER=`Login de l'utilisateur de l'API`
+TEST_USER_FULLNAME=`Nom utilisateur`
+TEST_USER_PASSWORD=`Mot de passe de l'utilisateur de l'API`
+ 
+# MLflow et DagsHub
 MLFLOW_TRACKING_URI=https://dagshub.com/MariamaNadia/Projet_Formation_MLOps_DataScientest_2025.mlflow
 MLFLOW_EXPERIMENT_NAME=ProductCodeClassifier
 DAGSHUB_USERNAME=`Votre identifiant DagsHub`
 DAGSHUB_TOKEN=`Votre token DagsHub`
+
+# Airflow
 AIRFLOW_UID=0
-PROJECT_HOST_PATH=`Répertoire absolu de votre projet, requis pour l'usage de l'opérateur Airflow DockerOperator`
-TEST_USER=`Login de l'utilisateur de l'API`
-TEST_USER_FULLNAME=`Nom de l'utilisateur de l'API`
-TEST_USER_PASSWORD=`Mot de passe de l'utilisateur de l'API`
+PROJECT_HOST_PATH=`Répertoire absolu du projet, requis pour DockerOperator`
 ```
 
 ### Dépendances
@@ -220,7 +229,7 @@ Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez confi
 .
 ├── LICENSE
 ├── Makefile
-├── REAMDME.md
+├── README.md
 ├── __init__.py
 ├── airflow
 │   ├── Dockerfile
@@ -246,9 +255,8 @@ Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez confi
 │       ├── Y_train_CVw08PX.csv
 │       ├── Y_train_CVw08PX.csv.dvc
 │       ├── __MACOSX
-│       ├── image_test
-│       ├── image_train
-│       └── images_low.zip
+│       ├── images
+│       └── images.zip
 ├── docker-compose.yml
 ├── image.png
 ├── logs
@@ -260,8 +268,14 @@ Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez confi
 │   ├── serving_logger.log
 │   ├── test_model_logger.log
 │   ├── train
+│   │   ├── events.out.tfevents.1757284873.cdcc36909964.1.0.v2
+│   │   ├── events.out.tfevents.1757286505.b2faa36ce2ef.1.0.v2
+│   │   └── events.out.tfevents.1757286530.b2faa36ce2ef.1.2.v2
 │   ├── train_model_logger.log
 │   ├── validation
+│   │   ├── events.out.tfevents.1757284881.cdcc36909964.1.1.v2
+│   │   ├── events.out.tfevents.1757286515.b2faa36ce2ef.1.1.v2
+│   │   └── events.out.tfevents.1757287821.b2faa36ce2ef.1.3.v2
 │   ├── vgg16_accuracy_curves.png
 │   └── vgg16_loss_curves.png
 ├── mlartifacts
@@ -332,7 +346,7 @@ Un utilisateur a été créé par défaut pour pouvoir tester. Vous pouvez confi
 │       └── train
 └── tests
     ├── __init__.py
-    └── test_api.py
+    └── api_test.py
 ```
 
 ### Struture du code des stages : data, train, auth, predict
@@ -537,13 +551,13 @@ Exemple retours :
 ## Tests Unitaires
 ## Documentation des tests unitaires
 
-Cette partie de la documentation décrit les tests unitaires définis pour l’API FastAPI. Ils couvrent les trois endpoints principaux : racine (`/`), `GET /status` et `POST /predict`.
+Cette partie de la documentation décrit les tests unitaires définis pour l’API FastAPI. Ils couvrent les trois endpoints principaux : `GET /status` et `POST /predict`.
 
 ---
 
 ## Prérequis
 
-- Python 3.9
+- Python 3.10
 - FastAPI
 - Uvicorn (pour lancer l’API si besoin)
 - pytest
@@ -552,22 +566,27 @@ Cette partie de la documentation décrit les tests unitaires définis pour l’A
 Installer les dépendances :
 
 ```bash
-  pip install fastapi uvicorn pytest httpx
+  pip install fastapi uvicorn pytest>=7.0 httpx slowapi prometheus-fastapi-instrumentator numpy Pillow==10.0.0
+
 ```
+
+ou installer le fichier requirements.txt.
 
 ## Lancer les tests
 
 Depuis la racine du projet (là où se trouve src/ et tests/), exécuter :
 
 ```bash
-   pytest tests/test_api.py
+   export PYTHONPATH=$(pwd)
+   pytest
 ```
+
 ## Structure des tests
 
-Le fichier tests/test_api.py contient trois fonctions :
+Le fichier tests/test_api.py contient deux fonctions :
 ```python
 from fastapi.testclient import TestClient
-from Projet_Formation_MLOps_DataScientest_2025.api import app
+from src.models.serve.serve_model_fastapi import app
 
 client = TestClient(app)
 ```
@@ -580,7 +599,7 @@ Chaque test utilise un TestClient pour simuler des requêtes HTTP vers l’appli
       def test_status():
           response = client.get("/status")
           assert response.status_code == 200
-          assert response.json() == {"status": "L'API fonctionne correctement"}
+          assert response.json() == {"message": "Model Serving via FastAPI is running !"}
       ```
    3. Requête : 
    ```http request
@@ -588,49 +607,32 @@ Chaque test utilise un TestClient pour simuler des requêtes HTTP vers l’appli
    ```
    4. Assertions :
       - `response.status_code == 200`
-      - `response.json() == {"status": "L'API fonctionne correctement"}`
+      - `response.json() == {"message": "Model Serving via FastAPI is running !"}`
 
-   2. **test_root**
-      3. Objectif : valider que la racine / renvoie un message de bienvenue.
-      4. script
-      ```python
-      def test_root():
-          response = client.get("/")
-          assert response.status_code == 200
-          data = response.json()
-          assert "message" in data
-          assert "Bienvenue" in data["message"]
-         ```
-      4. Requête :
-      ```http request
-      GET /
-      ```
-      5. Assertions
-         - `response.status_code == 200`
-         - `Le corps JSON contient une clé message`
-         - `La chaîne "Bienvenue" apparaît dans la valeur de message`
+2. **test_predict**
+   1. Objectif : s’assurer que l’endpoint POST /predict accepte un payload JSON arbitraire et retourne un JSON avec les clés `predictions` et `message`. Pour les besoins de test, une image simple est créée. Les éléments du modèle sont également mockés : tokenizer, lstm, vgg16, weights, mapper ainsi que la récupération du token.
 
-3. **test_predict**
-   4. Objectif : s’assurer que l’endpoint POST /predict accepte un payload JSON arbitraire et retourne un JSON avec les clés predicted et label.
-   5. script
+   2. Script
    ```python
    def test_predict():
-       sample_text = {"predicted": "1", "label": "label_1"}
-       response = client.post("/predict", json=sample_text)
-       assert response.status_code == 200
-       data = response.json()
-       assert "predicted" in data
-       assert "label" in data
+
+       files = {"image": ("test.jpg", img_buffer.getvalue(), "image/jpeg")}
+        data = {
+            "product_identifier": "id1",
+            "designation": "laptop computer",
+            "description": "gaming laptop with good specs", 
+            "product_id": "pid123",
+            "imageid": "img123"
+        }
+        
+        response = client.post("/predict", data=data, files=files)
+        #...
+        assert "predictions" in resp_json
    ```
-   5. Requête :
-   ```http request
-   POST /predict
-   Content-Type: application/json
-   {"predicted": "1", "label": "label_1"}
-   ```
-   6. Assertions :
-    - response.status_code == 200 
-    - La réponse JSON contient les champs predicted et label
+
+   3. Assertions :
+    - Le code de retour est `200` 
+    - La réponse JSON contient le champ `predictions`
 
 ---------
 

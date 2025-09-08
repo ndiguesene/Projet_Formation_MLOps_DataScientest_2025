@@ -28,6 +28,8 @@ load_dotenv()
 
 app = FastAPI()
 
+logger = None  # global logger variable
+
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
@@ -42,22 +44,22 @@ class PredictionResponse(BaseModel):
     predictions: List[SubPrediction]
     message: str
 
-
-# Logger setup
+   # Logger setup
 logger = logging.getLogger(__name__)
 log_file_path = os.path.join("logs", "api.log")
+
 os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
 fileHandler = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=3)
 formatter = Formatter("%(asctime)s [%(levelname)s] %(message)s")
 fileHandler.setFormatter(formatter)
 logger.addHandler(fileHandler)
-logger.setLevel(logging.INFO)
-
+logger.setLevel(logging.INFO) 
 
 @app.on_event("startup")
 async def load_models():
     global tokenizer, lstm, vgg16, best_weights, mapper
 
+    #logger = setup_logger()
     tokenizer_config_path = os.getenv("TOKENIZER_CONFIG_PATH", "models/tokenizer_config.json")
     lstm_model_path = os.getenv("LSTM_MODEL_PATH", "models/best_lstm_model.h5")
     vgg16_model_path = os.getenv("VGG16_MODEL_PATH", "models/best_vgg16_model.h5")
