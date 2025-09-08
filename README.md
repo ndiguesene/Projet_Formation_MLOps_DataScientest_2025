@@ -23,6 +23,7 @@
   - [Services : sécurisation et logging](#services--sécurisation-et-logging)
 - [Tests Unitaires](#tests-unitaires)
   - [Documentation des tests unitaires](#documentation-des-tests-unitaires)
+  - [Intégration continue Github Actions](#integration-continue-github-actions)
 - [Automatisation Airflow/DVC/DagsHub/MLFlow](#automatisation-airflowdvcdagshubmlflow)
 - [Monitoring](#monitoring)
 
@@ -613,6 +614,11 @@ Chaque test utilise un TestClient pour simuler des requêtes HTTP vers l’appli
    4. Assertions :
       - `response.status_code == 200`
       - `response.json() == {"message": "Model Serving via FastAPI is running !"}`
+
+## Intégration continue Github Actions
+Le Continuous Integration est appliqué dans ce projet via les Actions GitHub. Dans notre implémentation, tout push sur la branche `master` est suivi automatiquement de l'exécution des tests unitaires.
+**Fichier** : `.github/workflows/python-app.yml`
+
 
 2. **test_predict**
    1. Objectif : s’assurer que l’endpoint POST /predict accepte un payload JSON arbitraire et retourne un JSON avec les clés `predictions` et `message`. Pour les besoins de test, une image simple est créée. Les éléments du modèle sont également mockés : tokenizer, lstm, vgg16, weights, mapper ainsi que la récupération du token.
